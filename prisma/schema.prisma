@@ -1,0 +1,359 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum CategoryType {
+  EXPENSE
+  INCOME
+  PRODUCT
+}
+
+enum ExpenseKind {
+  BUSINESS
+  PERSONAL
+}
+
+enum SaleStatus {
+  DRAFT
+  CONFIRMED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIAL
+  PAID
+  REFUNDED
+}
+
+enum PayableStatus {
+  UNPAID
+  PARTIAL
+  PAID
+}
+
+enum PaymentMethod {
+  CASH
+  BANK
+  MOBILE_MONEY
+  OTHER
+}
+
+enum RecurrenceFrequency {
+  MONTHLY
+  WEEKLY
+  YEARLY
+}
+
+enum IncomeKind {
+  BUSINESS
+  PERSONAL
+}
+
+model Supplier {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  shopName  String?
+  phone     String?
+  location  String?
+  notes     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  inventoryItems InventoryItem[]
+  supplierPayables SupplierPayable[]
+}
+
+model Category {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String
+  type       CategoryType
+  expenseKind ExpenseKind?
+  icon       String?
+  isActive   Boolean   @default(true)
+  sortOrder  Int       @default(0)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  inventoryItems    InventoryItem[]
+  expenses          Expense[]
+  recurringTemplates RecurringExpenseTemplate[]
+  otherIncomes      OtherIncome[]
+
+  @@index([type, expenseKind])
+}
+
+model InventoryItem {
+  id                String   @id @default(uuid()) @db.Uuid
+  name              String
+  description       String?
+  imageUrl          String?
+  imageKey          String?
+  imageWidth        Int?
+  imageHeight       Int?
+  imageMimeType     String?
+  imageSizeBytes    Int?
+  supplierId        String   @db.Uuid
+  categoryId        String?  @db.Uuid
+  costPrice         Decimal  @db.Decimal(14, 2)
+  sellingPrice      Decimal  @db.Decimal(14, 2)
+  initialQuantity   Int
+  availableQuantity Int
+  sku               String?  @unique
+  isActive          Boolean  @default(true)
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  supplier   Supplier  @relation(fields: [supplierId], references: [id])
+  category   Category? @relation(fields: [categoryId], references: [id])
+  saleLines  SaleLine[]
+
+  @@index([supplierId])
+  @@index([isActive])
+  @@index([categoryId])
+}
+
+model Customer {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  phone     String?
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sales Sale[]
+}
+
+model Sale {
+  id             String        @id @default(uuid()) @db.Uuid
+  orderNumber    String        @unique
+  customerId     String?       @db.Uuid
+  status         SaleStatus    @default(DRAFT)
+  paymentStatus  PaymentStatus @default(UNPAID)
+  saleDate       DateTime
+  deliveredAt    DateTime?
+  subtotal       Decimal       @db.Decimal(14, 2) @default(0)
+  deliveryCharge Decimal?      @db.Decimal(14, 2)
+  total          Decimal       @db.Decimal(14, 2) @default(0)
+  amountPaid     Decimal       @db.Decimal(14, 2) @default(0)
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  customer   Customer?  @relation(fields: [customerId], references: [id])
+  lines      SaleLine[]
+  payments   SalePayment[]
+
+  @@index([saleDate])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([customerId])
+}
+
+model SaleLine {
+  id                        String   @id @default(uuid()) @db.Uuid
+  saleId                    String   @db.Uuid
+  inventoryItemId           String   @db.Uuid
+  supplierIdSnapshot        String?  @db.Uuid
+  itemNameSnapshot          String
+  unitCostSnapshot          Decimal  @db.Decimal(14, 2)
+  unitSellingPriceSnapshot  Decimal  @db.Decimal(14, 2)
+  quantity                  Int
+  lineRevenue               Decimal  @db.Decimal(14, 2)
+  lineCOGS                  Decimal  @db.Decimal(14, 2)
+  lineProfit                Decimal  @db.Decimal(14, 2)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  sale          Sale          @relation(fields: [saleId], references: [id])
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  supplierPayable SupplierPayable?
+
+  @@index([saleId])
+  @@index([inventoryItemId])
+}
+
+model SalePayment {
+  id          String        @id @default(uuid()) @db.Uuid
+  saleId      String        @db.Uuid
+  amount      Decimal       @db.Decimal(14, 2)
+  paymentDate DateTime
+  method      PaymentMethod
+  reference   String?
+  notes       String?
+  createdAt   DateTime      @default(now())
+
+  sale Sale @relation(fields: [saleId], references: [id])
+
+  @@index([saleId])
+  @@index([paymentDate])
+}
+
+model SupplierPayable {
+  id        String        @id @default(uuid()) @db.Uuid
+  saleLineId String       @unique @db.Uuid
+  supplierId String       @db.Uuid
+  amountDue Decimal       @db.Decimal(14, 2)
+  amountPaid Decimal      @db.Decimal(14, 2) @default(0)
+  status    PayableStatus @default(UNPAID)
+  dueDate   DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  saleLine   SaleLine   @relation(fields: [saleLineId], references: [id])
+  supplier   Supplier   @relation(fields: [supplierId], references: [id])
+  payments   SupplierPayment[]
+
+  @@index([supplierId])
+  @@index([status])
+}
+
+model SupplierPayment {
+  id                String        @id @default(uuid()) @db.Uuid
+  supplierPayableId String        @db.Uuid
+  amount            Decimal       @db.Decimal(14, 2)
+  paymentDate       DateTime
+  method            PaymentMethod
+  reference         String?
+  notes             String?
+  createdAt         DateTime      @default(now())
+
+  supplierPayable SupplierPayable @relation(fields: [supplierPayableId], references: [id])
+
+  @@index([supplierPayableId])
+  @@index([paymentDate])
+}
+
+model Expense {
+  id                  String        @id @default(uuid()) @db.Uuid
+  categoryId          String        @db.Uuid
+  amount              Decimal       @db.Decimal(14, 2)
+  expenseDate         DateTime
+  description         String?
+  paymentMethod       PaymentMethod
+  recurringTemplateId String?       @db.Uuid
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  category          Category                  @relation(fields: [categoryId], references: [id])
+  recurringTemplate RecurringExpenseTemplate? @relation(fields: [recurringTemplateId], references: [id])
+
+  @@index([expenseDate])
+  @@index([categoryId])
+  @@index([recurringTemplateId])
+}
+
+model RecurringExpenseTemplate {
+  id         String               @id @default(uuid()) @db.Uuid
+  name       String
+  categoryId String               @db.Uuid
+  amount     Decimal              @db.Decimal(14, 2)
+  frequency  RecurrenceFrequency
+  nextDueDate DateTime
+  dayOfMonth Int?
+  isActive   Boolean              @default(true)
+  notes      String?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id])
+  expenses Expense[]
+
+  @@index([categoryId])
+  @@index([nextDueDate])
+}
+
+model OtherIncome {
+  id            String        @id @default(uuid()) @db.Uuid
+  categoryId    String        @db.Uuid
+  incomeKind    IncomeKind    @default(BUSINESS)
+  amount        Decimal       @db.Decimal(14, 2)
+  incomeDate    DateTime
+  description   String?
+  paymentMethod PaymentMethod
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([incomeDate])
+  @@index([categoryId])
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  defaultCurrencyCode String?
+  timezone      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
