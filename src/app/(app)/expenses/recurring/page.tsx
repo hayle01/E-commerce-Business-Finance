@@ -17,20 +17,20 @@ export default async function RecurringPage() {
       </div>
 
       {templates.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center">
+        <div className="rounded-lg border border-dashed border-border p-8 text-center">
           <p className="font-medium">No recurring obligations yet</p>
-          <p className="mt-1 text-sm text-neutral-500">Track rent-like monthly fees, subscriptions and similar costs.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Track rent-like monthly fees, subscriptions and similar costs.</p>
           <Link href="/expenses/recurring/new" className="mt-4 inline-block btn-primary">Add template</Link>
         </div>
       ) : (
-        <ul className="divide-y divide-neutral-100">
+        <ul className="divide-y divide-border">
           {templates.map((t) => {
             const status = recurringStatus(t);
             return (
             <li key={t.id} className="flex items-center justify-between py-3">
               <Link href={`/expenses/recurring/${t.id}`} className="min-w-0 flex-1">
                 <p className="font-medium">{t.name}</p>
-                <p className="text-sm text-neutral-500">
+                <p className="text-sm text-muted-foreground">
                   {formatMoney(t.amount)} {t.frequency.toLowerCase()} · {t.category.name} · due {formatDate(t.nextDueDate)}
                 </p>
                 <Badge

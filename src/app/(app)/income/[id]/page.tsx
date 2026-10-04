@@ -14,18 +14,18 @@ export default async function IncomeDetailPage({ params }: { params: Promise<{ i
     <main className="p-4 md:p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">{income.category.name}</h1>
-        <Link href="/income" className="text-sm text-neutral-500 underline">Back</Link>
+        <Link href="/income" className="text-sm text-muted-foreground underline">Back</Link>
       </div>
       <div className="mb-4">
         <Link href={`/income/${income.id}/edit`} className="btn-secondary inline-block">Edit</Link>
       </div>
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm md:max-w-lg">
-        <dt className="text-neutral-500">Kind</dt><dd>{income.incomeKind === "PERSONAL" ? "Personal" : "Business"}</dd>
-        <dt className="text-neutral-500">Amount</dt><dd>{formatMoney(income.amount)}</dd>
-        <dt className="text-neutral-500">Date</dt><dd>{formatDate(income.incomeDate)}</dd>
-        <dt className="text-neutral-500">Payment method</dt><dd>{income.paymentMethod}</dd>
-        <dt className="text-neutral-500">Description</dt><dd>{income.description ?? "—"}</dd>
-        <dt className="text-neutral-500">Created</dt><dd>{formatDateTime(income.createdAt)}</dd>
+        <dt className="text-muted-foreground">Kind</dt><dd>{income.incomeKind === "PERSONAL" ? "Personal" : "Business"}</dd>
+        <dt className="text-muted-foreground">Amount</dt><dd>{formatMoney(income.amount)}</dd>
+        <dt className="text-muted-foreground">Date</dt><dd>{formatDate(income.incomeDate)}</dd>
+        <dt className="text-muted-foreground">Payment method</dt><dd>{income.paymentMethod}</dd>
+        <dt className="text-muted-foreground">Description</dt><dd>{income.description ?? "—"}</dd>
+        <dt className="text-muted-foreground">Created</dt><dd>{formatDateTime(income.createdAt)}</dd>
       </dl>
     </main>
   );

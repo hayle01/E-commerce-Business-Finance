@@ -34,8 +34,8 @@ export default function ForgotPasswordPage() {
     <AuthFormShell title="Forgot password" description="Enter the email for your account and we'll send you a secure reset link." footer={<Link className="underline" href="/sign-in">Back to sign in</Link>}>
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
         <IconInput icon={Mail} type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {message && <p className="text-sm text-green-700">{message}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+        {message && <p className="text-sm text-green-700 dark:text-green-400">{message}</p>}
         <button disabled={loading} className="btn-primary px-3 disabled:opacity-50">{loading ? "Sending…" : "Send reset link"}</button>
       </form>
     </AuthFormShell>

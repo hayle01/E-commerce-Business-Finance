@@ -44,27 +44,27 @@ export function ExpenseForm({ categories }: { categories: Category[] }) {
     <form onSubmit={onSubmit} className="flex max-w-2xl flex-col gap-5">
       <div>
         <p className="mb-2 text-sm font-medium">Category</p>
-        <p className="mb-1 text-xs text-neutral-500">Personal</p>
+        <p className="mb-1 text-xs text-muted-foreground">Personal</p>
         <div className="flex flex-wrap gap-1.5">
           {personal.map((c) => (
             <button
               type="button"
               key={c.id}
               onClick={() => setCategoryId(c.id)}
-              className={`rounded-full border px-3 py-1 text-sm ${categoryId === c.id ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-300"}`}
+              className={`rounded-full border px-3 py-1 text-sm ${categoryId === c.id ? "border-foreground bg-foreground text-background" : "border-border"}`}
             >
               {c.name}
             </button>
           ))}
         </div>
-        <p className="mb-1 mt-3 text-xs text-neutral-500">Business</p>
+        <p className="mb-1 mt-3 text-xs text-muted-foreground">Business</p>
         <div className="flex flex-wrap gap-1.5">
           {business.map((c) => (
             <button
               type="button"
               key={c.id}
               onClick={() => setCategoryId(c.id)}
-              className={`rounded-full border px-3 py-1 text-sm ${categoryId === c.id ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-300"}`}
+              className={`rounded-full border px-3 py-1 text-sm ${categoryId === c.id ? "border-foreground bg-foreground text-background" : "border-border"}`}
             >
               {c.name}
             </button>
@@ -107,8 +107,8 @@ export function ExpenseForm({ categories }: { categories: Category[] }) {
         </select>
       </label>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="sticky bottom-0 border-t border-neutral-200 bg-white py-3">
+      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      <div className="sticky bottom-0 border-t border-border bg-background py-3">
       <button disabled={loading} className="btn-primary w-full md:w-auto">
         {loading ? "Saving…" : "Save expense"}
       </button>

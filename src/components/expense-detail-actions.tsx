@@ -31,7 +31,7 @@ export function ExpenseDetailActions({ expenseId }: { expenseId: string }) {
       >
         {mutation.isPending ? "Deleting…" : "Delete"}
       </button>
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>}
     </div>
   );
 }

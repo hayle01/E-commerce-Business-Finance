@@ -46,9 +46,9 @@ export default async function ExpensesPage({
       </form>
 
       {expenses.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center">
+        <div className="rounded-lg border border-dashed border-border p-8 text-center">
           <p className="font-medium">No expenses yet</p>
-          <p className="mt-1 text-sm text-neutral-500">Track business costs and personal spending separately.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Track business costs and personal spending separately.</p>
           <Link href="/expenses/new" className="mt-4 inline-block btn-primary">Add expense</Link>
         </div>
       ) : (
@@ -56,7 +56,7 @@ export default async function ExpensesPage({
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-neutral-200 text-left text-neutral-500">
+                <tr className="border-b border-border text-left text-muted-foreground">
                   <th className="py-2 pr-4 font-medium">Date</th>
                   <th className="py-2 pr-4 font-medium">Category</th>
                   <th className="py-2 pr-4 font-medium">Description</th>
@@ -67,27 +67,27 @@ export default async function ExpensesPage({
               </thead>
               <tbody>
                 {expenses.map((e) => (
-                  <tr key={e.id} className="border-b border-neutral-100 hover:bg-neutral-50">
+                  <tr key={e.id} className="border-b border-border hover:bg-accent">
                     <td className="py-2 pr-4">{formatDate(e.expenseDate)}</td>
                     <td className="py-2 pr-4"><Link href={`/expenses/${e.id}`} className="font-medium">{e.category.name}</Link></td>
-                    <td className="py-2 pr-4 text-neutral-600">{e.description ?? "—"}</td>
-                    <td className="py-2 pr-4 text-neutral-600">{e.category.expenseKind ?? "—"}</td>
+                    <td className="py-2 pr-4 text-muted-foreground">{e.description ?? "—"}</td>
+                    <td className="py-2 pr-4 text-muted-foreground">{e.category.expenseKind ?? "—"}</td>
                     <td className="py-2 pr-4 text-right">{formatMoney(e.amount)}</td>
-                    <td className="py-2 text-neutral-600">{e.paymentMethod}</td>
+                    <td className="py-2 text-muted-foreground">{e.paymentMethod}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <ul className="divide-y divide-neutral-100 md:hidden">
+          <ul className="divide-y divide-border md:hidden">
             {expenses.map((e) => (
               <li key={e.id}>
                 <Link href={`/expenses/${e.id}`} className="flex items-center justify-between py-3">
                   <div>
                     <p className="font-medium">{e.category.name}</p>
-                    <p className="text-sm text-neutral-500">{e.category.expenseKind === "PERSONAL" ? "Personal" : "Business"} · {formatDate(e.expenseDate)}</p>
-                    {e.description && <p className="text-sm text-neutral-600">{e.description}</p>}
+                    <p className="text-sm text-muted-foreground">{e.category.expenseKind === "PERSONAL" ? "Personal" : "Business"} · {formatDate(e.expenseDate)}</p>
+                    {e.description && <p className="text-sm text-muted-foreground">{e.description}</p>}
                   </div>
                   <p className="font-medium">-{formatMoney(e.amount)}</p>
                 </Link>

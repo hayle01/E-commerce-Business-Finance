@@ -141,10 +141,10 @@ export function ImageUploadField({ folderId, value, onChange }: Props) {
       />
 
       {progress !== null && (
-        <p className="text-sm text-neutral-500">Uploading… {progress}%</p>
+        <p className="text-sm text-muted-foreground">Uploading… {progress}%</p>
       )}
       {error && (
-        <p className="text-sm text-red-600">
+        <p className="text-sm text-red-600 dark:text-red-400">
           {error}{" "}
           <button type="button" className="underline" onClick={() => setError(null)}>
             Dismiss

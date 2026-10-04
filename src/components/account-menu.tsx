@@ -35,7 +35,7 @@ export function AccountMenu({ name, email }: { name: string; email: string }) {
         aria-expanded={open}
         aria-label="Account menu"
         onClick={() => setOpen(!open)}
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-sm font-semibold text-white"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-sm font-semibold text-background"
       >
         {initial}
       </button>
@@ -43,17 +43,17 @@ export function AccountMenu({ name, email }: { name: string; email: string }) {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-10 z-40 w-56 rounded-md border border-neutral-200 bg-white py-1 text-sm shadow-sm"
+          className="absolute right-0 top-10 z-40 w-56 rounded-md border border-border bg-background py-1 text-sm shadow-sm"
         >
-          <div className="border-b border-neutral-100 px-3 py-2">
+          <div className="border-b border-border px-3 py-2">
             <p className="truncate font-medium">{name}</p>
-            <p className="truncate text-xs text-neutral-500">{email}</p>
+            <p className="truncate text-xs text-muted-foreground">{email}</p>
           </div>
           <Link
             href="/settings/account"
             role="menuitem"
             onClick={() => setOpen(false)}
-            className="block px-3 py-2 hover:bg-neutral-50"
+            className="block px-3 py-2 hover:bg-accent"
           >
             Settings
           </Link>
@@ -65,7 +65,7 @@ export function AccountMenu({ name, email }: { name: string; email: string }) {
                 fetchOptions: { onSuccess: () => { setOpen(false); router.push("/sign-in"); router.refresh(); } },
               })
             }
-            className="block w-full px-3 py-2 text-left text-red-700 hover:bg-neutral-50"
+            className="block w-full px-3 py-2 text-left text-red-700 dark:text-red-400 hover:bg-accent"
           >
             Log out
           </button>

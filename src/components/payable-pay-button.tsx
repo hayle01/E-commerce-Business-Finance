@@ -38,7 +38,7 @@ export function PayablePayButton({ payableId, outstanding }: { payableId: string
         {open ? "Cancel" : "Pay"}
       </button>
       {open && (
-        <form onSubmit={onSubmit} className="mt-2 flex flex-wrap items-end gap-2 rounded-md border border-neutral-200 p-2">
+        <form onSubmit={onSubmit} className="mt-2 flex flex-wrap items-end gap-2 rounded-md border border-border p-2">
           <input
             type="number"
             min={0.01}
@@ -59,7 +59,7 @@ export function PayablePayButton({ payableId, outstanding }: { payableId: string
           <button disabled={loading} className="btn-primary px-3 py-1 text-sm">
             {loading ? "Saving…" : "Save"}
           </button>
-          {error && <p className="w-full text-xs text-red-600">{error}</p>}
+          {error && <p className="w-full text-xs text-red-600 dark:text-red-400">{error}</p>}
         </form>
       )}
     </div>

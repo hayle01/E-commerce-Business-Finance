@@ -60,7 +60,7 @@ export default async function DashboardPage({
     <main className="p-4 md:p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">Dashboard</h1>
-        <span className="text-sm text-neutral-500">{range.label}</span>
+        <span className="text-sm text-muted-foreground">{range.label}</span>
       </div>
 
       <div className="flex flex-wrap gap-2 text-sm">
@@ -76,7 +76,7 @@ export default async function DashboardPage({
             aria-current={activePreset === key ? "page" : undefined}
             className={
               activePreset === key
-                ? "rounded-md border border-neutral-900 bg-neutral-900 px-3 py-1.5 text-white"
+                ? "rounded-md border border-foreground bg-foreground px-3 py-1.5 text-background"
                 : "btn-secondary"
             }
           >
@@ -86,10 +86,10 @@ export default async function DashboardPage({
         <DateRangePicker basePath="/dashboard" />
       </div>
 
-      <div className="mt-6 grid grid-cols-2 divide-x divide-y divide-neutral-200 border border-neutral-200 md:grid-cols-3">
+      <div className="mt-6 grid grid-cols-2 divide-x divide-y divide-border border border-border md:grid-cols-3">
         {kpis.map(([label, value]) => (
           <div key={label} className="p-4">
-            <p className="text-xs text-neutral-500">{label}</p>
+            <p className="text-xs text-muted-foreground">{label}</p>
             <p className="mt-1 text-lg font-semibold">{formatMoney(value)}</p>
           </div>
         ))}
@@ -99,11 +99,11 @@ export default async function DashboardPage({
 
       <section className="mt-8 grid gap-8 md:grid-cols-2">
         <div>
-          <h2 className="mb-2 text-sm font-semibold text-neutral-700">Recent sales</h2>
+          <h2 className="mb-2 text-sm font-semibold text-foreground">Recent sales</h2>
           {recentSales.length === 0 ? (
-            <p className="text-sm text-neutral-500">No sales yet.</p>
+            <p className="text-sm text-muted-foreground">No sales yet.</p>
           ) : (
-            <ul className="divide-y divide-neutral-100">
+            <ul className="divide-y divide-border">
               {recentSales.map((sale) => (
                 <li key={sale.id}>
                   <Link href={`/sales/${sale.id}`} className="flex justify-between py-2 text-sm">
@@ -116,11 +116,11 @@ export default async function DashboardPage({
           )}
         </div>
         <div>
-          <h2 className="mb-2 text-sm font-semibold text-neutral-700">Recent expenses</h2>
+          <h2 className="mb-2 text-sm font-semibold text-foreground">Recent expenses</h2>
           {recentExpenses.length === 0 ? (
-            <p className="text-sm text-neutral-500">No expenses yet.</p>
+            <p className="text-sm text-muted-foreground">No expenses yet.</p>
           ) : (
-            <ul className="divide-y divide-neutral-100">
+            <ul className="divide-y divide-border">
               {recentExpenses.map((e) => (
                 <li key={e.id}>
                   <Link href={`/expenses/${e.id}`} className="flex justify-between py-2 text-sm">

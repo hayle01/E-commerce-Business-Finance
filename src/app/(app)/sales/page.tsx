@@ -38,9 +38,9 @@ export default async function SalesPage({
       </form>
 
       {sales.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center">
+        <div className="rounded-lg border border-dashed border-border p-8 text-center">
           <p className="font-medium">No sales yet</p>
-          <p className="mt-1 text-sm text-neutral-500">Record your first sale to start tracking revenue and profit.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Record your first sale to start tracking revenue and profit.</p>
           <Link href="/sales/new" className="mt-4 inline-block btn-primary">Record sale</Link>
         </div>
       ) : (
@@ -48,7 +48,7 @@ export default async function SalesPage({
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-neutral-200 text-left text-neutral-500">
+                <tr className="border-b border-border text-left text-muted-foreground">
                   <th className="py-2 pr-4 font-medium">Order</th>
                   <th className="py-2 pr-4 font-medium">Customer</th>
                   <th className="py-2 pr-4 text-right font-medium">Items</th>
@@ -66,13 +66,13 @@ export default async function SalesPage({
                   return (
                     <ClickableRow key={sale.id} href={`/sales/${sale.id}`}>
                       <td className="py-2 pr-4"><Link href={`/sales/${sale.id}`} className="font-medium">{sale.orderNumber}</Link></td>
-                      <td className="py-2 pr-4 text-neutral-600">{sale.customer?.name ?? "—"}</td>
+                      <td className="py-2 pr-4 text-muted-foreground">{sale.customer?.name ?? "—"}</td>
                       <td className="py-2 pr-4 text-right">{sale._count.lines}</td>
                       <td className="py-2 pr-4 text-right">{formatMoney(sale.total)}</td>
                       <td className="py-2 pr-4 text-right">{formatMoney(profit)}</td>
-                      <td className="py-2 pr-4 text-neutral-600">{sale.paymentStatus}</td>
-                      <td className="py-2 pr-4 text-neutral-600">{sale.status}</td>
-                      <td className="py-2 text-neutral-600">{formatDate(sale.saleDate)}</td>
+                      <td className="py-2 pr-4 text-muted-foreground">{sale.paymentStatus}</td>
+                      <td className="py-2 pr-4 text-muted-foreground">{sale.status}</td>
+                      <td className="py-2 text-muted-foreground">{formatDate(sale.saleDate)}</td>
                     </ClickableRow>
                   );
                 })}
@@ -80,7 +80,7 @@ export default async function SalesPage({
             </table>
           </div>
 
-          <ul className="divide-y divide-neutral-100 md:hidden">
+          <ul className="divide-y divide-border md:hidden">
             {sales.map((sale) => {
               const revenue = sale.lines.reduce((s, l) => s + Number(l.lineRevenue), 0);
               const profit = revenue - sale.lines.reduce((s, l) => s + Number(l.lineCOGS), 0);
@@ -89,13 +89,13 @@ export default async function SalesPage({
                   <Link href={`/sales/${sale.id}`} className="flex items-center justify-between py-3">
                     <div>
                       <p className="font-medium">{sale.orderNumber}</p>
-                      <p className="text-sm text-neutral-500">{sale.customer?.name ?? "—"} · {sale._count.lines} items</p>
-                      <p className="text-sm text-neutral-600">{sale.status} · {sale.paymentStatus}</p>
+                      <p className="text-sm text-muted-foreground">{sale.customer?.name ?? "—"} · {sale._count.lines} items</p>
+                      <p className="text-sm text-muted-foreground">{sale.status} · {sale.paymentStatus}</p>
                     </div>
                     <div className="text-right">
                       <p>{formatMoney(sale.total)}</p>
-                      <p className="text-sm text-neutral-500">profit {formatMoney(profit)}</p>
-                      <p className="text-xs text-neutral-400">{formatDate(sale.saleDate)}</p>
+                      <p className="text-sm text-muted-foreground">profit {formatMoney(profit)}</p>
+                      <p className="text-xs text-muted-foreground">{formatDate(sale.saleDate)}</p>
                     </div>
                   </Link>
                 </li>

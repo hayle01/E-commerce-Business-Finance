@@ -36,8 +36,8 @@ export function RecordRecurringButton({ id, active }: { id: string; active: bool
       >
         {mutation.isPending ? "Recording…" : "Record expense"}
       </button>
-      {recorded && !error && <span className="mt-1 text-xs text-emerald-700">Recorded.</span>}
-      {error && <span className="mt-1 text-xs text-red-600">{error}</span>}
+      {recorded && !error && <span className="mt-1 text-xs text-emerald-700 dark:text-emerald-400">Recorded.</span>}
+      {error && <span className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</span>}
     </span>
   );
 }

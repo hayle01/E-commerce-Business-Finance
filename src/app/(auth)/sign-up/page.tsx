@@ -67,7 +67,7 @@ export default function SignUpPage() {
         <PasswordInput placeholder="Confirm password" required value={confirmPassword} onChange={setConfirmPassword} />
 
         {error && (
-          <p className="text-sm text-red-600">
+          <p className="text-sm text-red-600 dark:text-red-400">
             {error}
           </p>
         )}
@@ -82,9 +82,9 @@ export default function SignUpPage() {
       </form>
 
       <div className="my-5 flex items-center gap-3">
-        <div className="h-px flex-1 bg-neutral-200" />
-        <span className="text-xs text-neutral-400">OR</span>
-        <div className="h-px flex-1 bg-neutral-200" />
+        <div className="h-px flex-1 bg-muted" />
+        <span className="text-xs text-muted-foreground">OR</span>
+        <div className="h-px flex-1 bg-muted" />
       </div>
 
       <GoogleSignInButton />

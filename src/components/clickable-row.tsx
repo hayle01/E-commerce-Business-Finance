@@ -16,7 +16,7 @@ export function ClickableRow({ href, children }: { href: string; children: React
           router.push(href);
         }
       }}
-      className="cursor-pointer border-b border-neutral-100 hover:bg-neutral-50 focus-visible:outline-2"
+      className="cursor-pointer border-b border-border hover:bg-accent focus-visible:outline-2"
     >
       {children}
     </tr>

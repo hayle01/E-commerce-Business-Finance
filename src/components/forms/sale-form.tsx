@@ -132,16 +132,16 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
           onChange={(e) => setSearch(e.target.value)}
         />
         {search && (
-          <ul className="mt-1 divide-y divide-neutral-100 rounded-md border border-neutral-200">
+          <ul className="mt-1 divide-y divide-border rounded-md border border-border">
             {filteredItems.map((item) => (
               <li key={item.id}>
-                <button type="button" className="flex w-full justify-between px-3 py-2 text-sm hover:bg-neutral-50" onClick={() => addLine(item)}>
+                <button type="button" className="flex w-full justify-between px-3 py-2 text-sm hover:bg-accent" onClick={() => addLine(item)}>
                   <span>{item.name} · {item.supplierName}</span>
-                  <span className="text-neutral-500">{item.availableQuantity} left · ${Number(item.sellingPrice).toFixed(2)}</span>
+                  <span className="text-muted-foreground">{item.availableQuantity} left · ${Number(item.sellingPrice).toFixed(2)}</span>
                 </button>
               </li>
             ))}
-            {filteredItems.length === 0 && <li className="px-3 py-2 text-sm text-neutral-500">No matching items.</li>}
+            {filteredItems.length === 0 && <li className="px-3 py-2 text-sm text-muted-foreground">No matching items.</li>}
           </ul>
         )}
       </div>
@@ -149,7 +149,7 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
       {lines.length > 0 && (
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 text-left text-neutral-500">
+            <tr className="border-b border-border text-left text-muted-foreground">
               <th className="py-2 font-medium">Item</th>
               <th className="py-2 font-medium">Qty</th>
               <th className="py-2 font-medium">Unit price</th>
@@ -159,7 +159,7 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
           </thead>
           <tbody>
             {lines.map((line) => (
-              <tr key={line.item.id} className="border-b border-neutral-100">
+              <tr key={line.item.id} className="border-b border-border">
                 <td className="py-2">{line.item.name}</td>
                 <td className="py-2">
                   <input
@@ -193,7 +193,7 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
                 </td>
                 <td className="py-2 text-right">${Number(fromCents(toCents(line.unitPrice || "0") * line.quantity)).toFixed(2)}</td>
                 <td className="py-2 text-right">
-                  <button type="button" className="text-neutral-400 underline" onClick={() => setLines((prev) => prev.filter((l) => l.item.id !== line.item.id))}>
+                  <button type="button" className="text-muted-foreground underline" onClick={() => setLines((prev) => prev.filter((l) => l.item.id !== line.item.id))}>
                     Remove
                   </button>
                 </td>
@@ -203,7 +203,7 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
         </table>
       )}
 
-      <div className="rounded-md border border-neutral-200 p-4 text-sm">
+      <div className="rounded-md border border-border p-4 text-sm">
         <p>Revenue: <span className="float-right">${Number(fromCents(revenueCents)).toFixed(2)}</span></p>
         <p>COGS: <span className="float-right">${Number(fromCents(cogsCents)).toFixed(2)}</span></p>
         <p>Delivery charge: <span className="float-right">${Number(fromCents(deliveryCents)).toFixed(2)}</span></p>
@@ -237,8 +237,8 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
         <textarea className="input" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </label>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="sticky bottom-0 border-t border-neutral-200 bg-white py-3">
+      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      <div className="sticky bottom-0 border-t border-border bg-background py-3">
       <button disabled={loading} className="btn-primary w-full md:w-auto">
         {loading ? "Saving…" : "Save sale"}
       </button>

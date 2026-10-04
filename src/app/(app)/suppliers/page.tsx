@@ -15,9 +15,9 @@ export default async function SuppliersPage() {
       </div>
 
       {suppliers.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center">
+        <div className="rounded-lg border border-dashed border-border p-8 text-center">
           <p className="font-medium">No suppliers yet</p>
-          <p className="mt-1 text-sm text-neutral-500">Add the shops you source products from.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Add the shops you source products from.</p>
           <Link href="/suppliers/new" className="mt-4 inline-block btn-primary">Add supplier</Link>
         </div>
       ) : (
@@ -25,7 +25,7 @@ export default async function SuppliersPage() {
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-neutral-200 text-left text-neutral-500">
+                <tr className="border-b border-border text-left text-muted-foreground">
                   <th className="py-2 pr-4 font-medium">Supplier / Shop</th>
                   <th className="py-2 pr-4 font-medium">Contact</th>
                   <th className="py-2 pr-4 text-right font-medium">Active items</th>
@@ -35,9 +35,9 @@ export default async function SuppliersPage() {
               </thead>
               <tbody>
                 {suppliers.map((s) => (
-                  <tr key={s.id} className="border-b border-neutral-100 hover:bg-neutral-50">
+                  <tr key={s.id} className="border-b border-border hover:bg-accent">
                     <td className="py-2 pr-4"><Link href={`/suppliers/${s.id}`} className="font-medium">{s.name}</Link></td>
-                    <td className="py-2 pr-4 text-neutral-600">{s.phone ?? s.location ?? "—"}</td>
+                    <td className="py-2 pr-4 text-muted-foreground">{s.phone ?? s.location ?? "—"}</td>
                     <td className="py-2 pr-4 text-right">{s.activeItems}</td>
                     <td className="py-2 pr-4 text-right">{formatMoney(s.amountOwed)}</td>
                     <td className="py-2 text-right">{formatMoney(s.totalPaid)}</td>
@@ -47,13 +47,13 @@ export default async function SuppliersPage() {
             </table>
           </div>
 
-          <ul className="divide-y divide-neutral-100 md:hidden">
+          <ul className="divide-y divide-border md:hidden">
             {suppliers.map((s) => (
               <li key={s.id}>
                 <Link href={`/suppliers/${s.id}`} className="block py-3">
                   <p className="font-medium">{s.name}</p>
-                  <p className="text-sm text-neutral-500">{s.phone ?? s.location ?? "—"}</p>
-                  <p className="text-sm text-neutral-600">
+                  <p className="text-sm text-muted-foreground">{s.phone ?? s.location ?? "—"}</p>
+                  <p className="text-sm text-muted-foreground">
                     {s.activeItems} items · owed {formatMoney(s.amountOwed)} · paid {formatMoney(s.totalPaid)}
                   </p>
                 </Link>

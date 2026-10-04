@@ -66,7 +66,7 @@ function SignInForm() {
         <PasswordInput placeholder="Password" required value={password} onChange={setPassword} />
 
         {error && (
-          <p className="text-sm text-red-600">
+          <p className="text-sm text-red-600 dark:text-red-400">
             {error}
           </p>
         )}
@@ -80,7 +80,7 @@ function SignInForm() {
         </button>
 
         <Link
-          className="text-sm text-neutral-500 underline"
+          className="text-sm text-muted-foreground underline"
           href="/forgot-password"
         >
           Forgot password?
@@ -88,9 +88,9 @@ function SignInForm() {
       </form>
 
       <div className="my-5 flex items-center gap-3">
-        <div className="h-px flex-1 bg-neutral-200" />
-        <span className="text-xs text-neutral-400">OR</span>
-        <div className="h-px flex-1 bg-neutral-200" />
+        <div className="h-px flex-1 bg-muted" />
+        <span className="text-xs text-muted-foreground">OR</span>
+        <div className="h-px flex-1 bg-muted" />
       </div>
 
       <GoogleSignInButton callbackURL={next} />

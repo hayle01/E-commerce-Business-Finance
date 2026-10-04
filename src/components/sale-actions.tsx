@@ -93,7 +93,7 @@ export function SaleActions({ saleId, status, paymentStatus, payables }: { saleI
 
       {mode === "payment" && (
         <form
-          className="mt-3 flex flex-wrap items-end gap-2 rounded-md border border-neutral-200 p-3"
+          className="mt-3 flex flex-wrap items-end gap-2 rounded-md border border-border p-3"
           onSubmit={(e) => {
             e.preventDefault();
             post(`/api/sales/${saleId}/payments`, { amount, paymentDate: today, method });
@@ -103,13 +103,13 @@ export function SaleActions({ saleId, status, paymentStatus, payables }: { saleI
           <select className="input px-2 py-1.5" value={method} onChange={(e) => setMethod(e.target.value as never)}>
             <option value="CASH">Cash</option><option value="BANK">Bank</option><option value="MOBILE_MONEY">Mobile money</option><option value="OTHER">Other</option>
           </select>
-          <button disabled={loading} className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white disabled:opacity-50">Save</button>
+          <button disabled={loading} className="rounded-md bg-foreground px-3 py-1.5 text-sm text-background disabled:opacity-50">Save</button>
         </form>
       )}
 
       {mode === "paySupplier" && (
         <form
-          className="mt-3 flex flex-wrap items-end gap-2 rounded-md border border-neutral-200 p-3"
+          className="mt-3 flex flex-wrap items-end gap-2 rounded-md border border-border p-3"
           onSubmit={(e) => {
             e.preventDefault();
             post(`/api/supplier-payables/${payableId}/payments`, { amount, paymentDate: today, method });
@@ -124,11 +124,11 @@ export function SaleActions({ saleId, status, paymentStatus, payables }: { saleI
           <select className="input px-2 py-1.5" value={method} onChange={(e) => setMethod(e.target.value as never)}>
             <option value="CASH">Cash</option><option value="BANK">Bank</option><option value="MOBILE_MONEY">Mobile money</option><option value="OTHER">Other</option>
           </select>
-          <button disabled={loading} className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm text-white disabled:opacity-50">Save</button>
+          <button disabled={loading} className="rounded-md bg-foreground px-3 py-1.5 text-sm text-background disabled:opacity-50">Save</button>
         </form>
       )}
 
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>}
     </div>
   );
 }

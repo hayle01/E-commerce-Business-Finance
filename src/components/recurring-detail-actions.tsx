@@ -29,7 +29,7 @@ export function RecurringDetailActions({ id, isActive }: { id: string; isActive:
       <button disabled={loading} onClick={toggle} className="btn-secondary">
         {loading ? "Updating…" : isActive ? "Deactivate" : "Reactivate"}
       </button>
-      {error && <span className="ml-2 text-xs text-red-600">{error}</span>}
+      {error && <span className="ml-2 text-xs text-red-600 dark:text-red-400">{error}</span>}
     </span>
   );
 }

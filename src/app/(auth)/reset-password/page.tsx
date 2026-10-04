@@ -42,7 +42,7 @@ function ResetPasswordForm() {
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
         <PasswordInput placeholder="New password" required value={password} onChange={setPassword} />
         <PasswordInput placeholder="Confirm new password" required value={confirmPassword} onChange={setConfirmPassword} />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         <button disabled={loading} className="btn-primary px-3 disabled:opacity-50">{loading ? "Resetting…" : "Reset password"}</button>
       </form>
     </AuthFormShell>

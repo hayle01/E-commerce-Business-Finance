@@ -22,7 +22,7 @@ type TrendDay = { date: string; revenue: number; cogs: number; grossProfit: numb
 
 function ChartEmpty() {
   return (
-    <div className="flex h-full items-center justify-center rounded-md border border-dashed border-neutral-200 text-sm text-neutral-500">
+    <div className="flex h-full items-center justify-center rounded-md border border-dashed border-border text-sm text-muted-foreground">
       No data for this period.
     </div>
   );
@@ -36,7 +36,7 @@ export function DashboardCharts({ days, expensesByCategory }: { days: TrendDay[]
   return (
     <div className="mt-6 grid gap-8 md:grid-cols-2">
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-neutral-700">Revenue vs COGS vs Gross Profit</h2>
+        <h2 className="mb-2 text-sm font-semibold text-foreground">Revenue vs COGS vs Gross Profit</h2>
         <div className="h-64 w-full">
           {hasEarned ? (
           <ResponsiveContainer width="100%" height="100%">
@@ -58,7 +58,7 @@ export function DashboardCharts({ days, expensesByCategory }: { days: TrendDay[]
       </section>
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-neutral-700">Expenses by category</h2>
+        <h2 className="mb-2 text-sm font-semibold text-foreground">Expenses by category</h2>
         <div className="h-64 w-full">
           {hasExpenses ? (
           <ResponsiveContainer width="100%" height="100%">
@@ -79,7 +79,7 @@ export function DashboardCharts({ days, expensesByCategory }: { days: TrendDay[]
       </section>
 
       <section className="md:col-span-2">
-        <h2 className="mb-2 text-sm font-semibold text-neutral-700">Cash in vs cash out</h2>
+        <h2 className="mb-2 text-sm font-semibold text-foreground">Cash in vs cash out</h2>
         <div className="h-64 w-full">
           {hasCash ? (
           <ResponsiveContainer width="100%" height="100%">

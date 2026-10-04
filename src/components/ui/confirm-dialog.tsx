@@ -38,17 +38,17 @@ export function ConfirmDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
-        className="w-full max-w-sm rounded-lg border border-neutral-200 bg-white p-5"
+        className="w-full max-w-sm rounded-lg border border-border bg-background p-5"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="confirm-dialog-title" className="text-base font-semibold">{title}</h2>
-        <p className="mt-2 text-sm text-neutral-600">{description}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
         <div className="mt-5 flex justify-end gap-2">
           <button onClick={onCancel} className="btn-secondary">Back</button>
           <button
             onClick={onConfirm}
             disabled={loading}
-            className={tone === "danger" ? "btn-danger bg-red-600 text-white hover:bg-red-700 border-transparent" : "btn-primary"}
+            className={tone === "danger" ? "btn-danger bg-red-600 text-background hover:bg-red-700 border-transparent" : "btn-primary"}
           >
             {loading ? "Working…" : confirmLabel}
           </button>

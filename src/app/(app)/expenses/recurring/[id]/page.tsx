@@ -18,7 +18,7 @@ export default async function RecurringDetailPage({ params }: { params: Promise<
     <main className="p-4 md:p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">{template.name}</h1>
-        <Link href="/expenses/recurring" className="text-sm text-neutral-500 underline">Back</Link>
+        <Link href="/expenses/recurring" className="text-sm text-muted-foreground underline">Back</Link>
       </div>
 
       <div className="mb-4">
@@ -31,11 +31,11 @@ export default async function RecurringDetailPage({ params }: { params: Promise<
       />
 
       <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm md:max-w-lg">
-        <dt className="text-neutral-500">Amount</dt><dd>{formatMoney(template.amount)}</dd>
-        <dt className="text-neutral-500">Frequency</dt><dd>{template.frequency}</dd>
-        <dt className="text-neutral-500">Category</dt><dd>{template.category.name}</dd>
-        <dt className="text-neutral-500">Next due date</dt><dd>{formatDate(template.nextDueDate)}</dd>
-        <dt className="text-neutral-500">Notes</dt><dd>{template.notes ?? "—"}</dd>
+        <dt className="text-muted-foreground">Amount</dt><dd>{formatMoney(template.amount)}</dd>
+        <dt className="text-muted-foreground">Frequency</dt><dd>{template.frequency}</dd>
+        <dt className="text-muted-foreground">Category</dt><dd>{template.category.name}</dd>
+        <dt className="text-muted-foreground">Next due date</dt><dd>{formatDate(template.nextDueDate)}</dd>
+        <dt className="text-muted-foreground">Notes</dt><dd>{template.notes ?? "—"}</dd>
       </dl>
 
       <div className="mt-6 flex items-center gap-3">
@@ -46,9 +46,9 @@ export default async function RecurringDetailPage({ params }: { params: Promise<
       <section className="mt-8">
         <h2 className="mb-2 text-lg font-semibold">Recently recorded expenses</h2>
         {template.expenses.length === 0 ? (
-          <p className="text-sm text-neutral-500">No expenses recorded from this template yet.</p>
+          <p className="text-sm text-muted-foreground">No expenses recorded from this template yet.</p>
         ) : (
-          <ul className="divide-y divide-neutral-100">
+          <ul className="divide-y divide-border">
             {template.expenses.map((e) => (
               <li key={e.id} className="flex justify-between py-2 text-sm">
                 <Link href={`/expenses/${e.id}`}>{formatDate(e.expenseDate)}</Link>

@@ -81,8 +81,8 @@ export function RecurringForm({ categories, editId, initial }: { categories: Cat
         Notes
         <textarea className="input" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </label>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="sticky bottom-0 border-t border-neutral-200 bg-white py-3">
+      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      <div className="sticky bottom-0 border-t border-border bg-background py-3">
       <button disabled={loading} className="btn-primary w-full md:w-auto">
         {loading ? "Saving…" : editId ? "Save changes" : "Save template"}
       </button>

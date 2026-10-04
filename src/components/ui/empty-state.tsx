@@ -12,9 +12,9 @@ export function EmptyState({
   actionLabel?: string;
 }) {
   return (
-    <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center">
+    <div className="rounded-lg border border-dashed border-border p-8 text-center">
       <p className="font-medium">{title}</p>
-      <p className="mt-1 text-sm text-neutral-500">{description}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       {actionHref && actionLabel && (
         <Link href={actionHref} className="btn-primary mt-4 inline-block">
           {actionLabel}

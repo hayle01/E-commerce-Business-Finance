@@ -29,12 +29,12 @@ export function PaySupplierForm({ supplierId, outstanding }: { supplierId: strin
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-2 rounded-md border border-neutral-200 p-3">
-      <label className="flex flex-col gap-1 text-xs text-neutral-500">
+    <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-2 rounded-md border border-border p-3">
+      <label className="flex flex-col gap-1 text-xs text-muted-foreground">
         Amount (outstanding ${outstanding.toFixed(2)})
         <input type="number" min={0.01} max={outstanding} step="0.01" required className="input" value={amount} onChange={(e) => setAmount(e.target.value)} />
       </label>
-      <label className="flex flex-col gap-1 text-xs text-neutral-500">
+      <label className="flex flex-col gap-1 text-xs text-muted-foreground">
         Method
         <select className="input" value={method} onChange={(e) => setMethod(e.target.value as never)}>
           <option value="CASH">Cash</option>
@@ -46,7 +46,7 @@ export function PaySupplierForm({ supplierId, outstanding }: { supplierId: strin
       <button disabled={loading || outstanding <= 0} className="btn-primary">
         {loading ? "Paying…" : "Pay supplier"}
       </button>
-      {error && <p className="w-full text-sm text-red-600">{error}</p>}
+      {error && <p className="w-full text-sm text-red-600 dark:text-red-400">{error}</p>}
     </form>
   );
 }

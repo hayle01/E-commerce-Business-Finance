@@ -35,11 +35,11 @@ function rangeFromParams(preset: Preset | undefined, from?: string, to?: string)
 function BreakdownList({ title, rows }: { title: string; rows: { name: string; value: number }[] }) {
   return (
     <section>
-      <h3 className="text-sm font-semibold text-neutral-700">{title}</h3>
+      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       {rows.length === 0 ? (
-        <p className="mt-1 text-sm text-neutral-500">No data.</p>
+        <p className="mt-1 text-sm text-muted-foreground">No data.</p>
       ) : (
-        <ul className="mt-1 divide-y divide-neutral-100 text-sm">
+        <ul className="mt-1 divide-y divide-border text-sm">
           {rows.map((r) => (
             <li key={r.name} className="flex justify-between py-1.5">
               <span>{r.name}</span>
@@ -93,7 +93,7 @@ export default async function ReportsPage({
     <main className="p-4 md:p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">Reports</h1>
-        <span className="text-sm text-neutral-500">{range.label}</span>
+        <span className="text-sm text-muted-foreground">{range.label}</span>
       </div>
 
       <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -105,7 +105,7 @@ export default async function ReportsPage({
 
       <table className="mt-6 w-full max-w-2xl border-collapse text-sm">
         <thead>
-          <tr className="border-b border-neutral-200 text-left text-neutral-500">
+          <tr className="border-b border-border text-left text-muted-foreground">
             <th className="py-2 font-medium">Figure</th>
             <th className="py-2 text-right font-medium">Amount</th>
             <th className="py-2 pl-4 font-medium">Basis</th>
@@ -113,10 +113,10 @@ export default async function ReportsPage({
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.label} className="border-b border-neutral-100">
+            <tr key={r.label} className="border-b border-border">
               <td className="py-2">{r.label}</td>
               <td className="py-2 text-right">{formatMoney(r.value)}</td>
-              <td className="py-2 pl-4 text-neutral-500">{r.kind}</td>
+              <td className="py-2 pl-4 text-muted-foreground">{r.kind}</td>
             </tr>
           ))}
         </tbody>
@@ -138,12 +138,12 @@ export default async function ReportsPage({
       </div>
 
       <section className="mt-8 max-w-md">
-        <h3 className="text-sm font-semibold text-neutral-700">Supplier liabilities</h3>
+        <h3 className="text-sm font-semibold text-foreground">Supplier liabilities</h3>
         <dl className="mt-1 grid grid-cols-2 gap-y-1.5 text-sm">
-          <dt className="text-neutral-500">Opening unpaid</dt><dd className="text-right">{formatMoney(breakdowns.supplierLiabilities.opening)}</dd>
-          <dt className="text-neutral-500">New payables</dt><dd className="text-right">{formatMoney(breakdowns.supplierLiabilities.newPayables)}</dd>
-          <dt className="text-neutral-500">Payments made</dt><dd className="text-right">{formatMoney(breakdowns.supplierLiabilities.paymentsMade)}</dd>
-          <dt className="text-neutral-500">Closing unpaid</dt><dd className="text-right font-medium">{formatMoney(breakdowns.supplierLiabilities.closing)}</dd>
+          <dt className="text-muted-foreground">Opening unpaid</dt><dd className="text-right">{formatMoney(breakdowns.supplierLiabilities.opening)}</dd>
+          <dt className="text-muted-foreground">New payables</dt><dd className="text-right">{formatMoney(breakdowns.supplierLiabilities.newPayables)}</dd>
+          <dt className="text-muted-foreground">Payments made</dt><dd className="text-right">{formatMoney(breakdowns.supplierLiabilities.paymentsMade)}</dd>
+          <dt className="text-muted-foreground">Closing unpaid</dt><dd className="text-right font-medium">{formatMoney(breakdowns.supplierLiabilities.closing)}</dd>
         </dl>
       </section>
     </main>

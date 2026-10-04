@@ -40,8 +40,8 @@ export default function AccountSettingsPage() {
         <h2 className="font-medium">Change password</h2>
         <PasswordInput placeholder="Current password" required value={currentPassword} onChange={setCurrentPassword} />
         <PasswordInput placeholder="New password" required value={newPassword} onChange={setNewPassword} />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {message && <p className="text-sm text-green-700">{message}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+        {message && <p className="text-sm text-green-700 dark:text-green-400">{message}</p>}
         <button disabled={loading} className="btn-primary px-3 disabled:opacity-50">{loading ? "Updating…" : "Update password"}</button>
       </form>
       <button

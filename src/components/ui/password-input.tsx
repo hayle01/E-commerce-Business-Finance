@@ -19,7 +19,7 @@ export function PasswordInput({
   const [visible, setVisible] = useState(false);
   return (
     <div className="relative">
-      <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" aria-hidden />
+      <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden />
       <input
         className="input w-full pl-9 pr-10"
         type={visible ? "text" : "password"}
@@ -34,7 +34,7 @@ export function PasswordInput({
         type="button"
         aria-label={visible ? "Hide password" : "Show password"}
         aria-pressed={visible}
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-neutral-500 hover:text-neutral-800"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
         onClick={() => setVisible(!visible)}
       >
         {visible ? <EyeOff size={18} /> : <Eye size={18} />}
