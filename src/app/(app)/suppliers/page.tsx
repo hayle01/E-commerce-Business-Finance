@@ -1,22 +1,24 @@
 import { listSuppliers } from "@/lib/services/suppliers";
 import { formatMoney } from "@/lib/format";
 import Link from "next/link";
+import { getSessionUser } from "@/lib/api";
 
 export default async function SuppliersPage() {
-  const suppliers = await listSuppliers();
+  const user = (await getSessionUser())!;
+  const suppliers = await listSuppliers(user.id);
 
   return (
     <main className="p-4 md:p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">Suppliers</h1>
-        <Link href="/suppliers/new" className="rounded-md bg-neutral-900 px-3 py-2 text-sm text-white">Add supplier</Link>
+        <Link href="/suppliers/new" className="btn-primary text-sm px-3">Add supplier</Link>
       </div>
 
       {suppliers.length === 0 ? (
         <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center">
           <p className="font-medium">No suppliers yet</p>
           <p className="mt-1 text-sm text-neutral-500">Add the shops you source products from.</p>
-          <Link href="/suppliers/new" className="mt-4 inline-block rounded-md bg-neutral-900 px-4 py-2 text-sm text-white">Add supplier</Link>
+          <Link href="/suppliers/new" className="mt-4 inline-block btn-primary">Add supplier</Link>
         </div>
       ) : (
         <>

@@ -4,14 +4,14 @@ import { createSupplierSchema } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
-  const suppliers = await listSuppliers();
+  const suppliers = await listSuppliers(user!.id);
   return NextResponse.json({ data: suppliers });
 }
 
 export async function POST(request: NextRequest) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
 
   const parsed = createSupplierSchema.safeParse(await request.json());
@@ -21,6 +21,6 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  const supplier = await createSupplier(parsed.data);
+  const supplier = await createSupplier(user!.id, parsed.data);
   return NextResponse.json({ data: supplier }, { status: 201 });
 }

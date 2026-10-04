@@ -137,4 +137,45 @@
   [role="button"][aria-disabled="true"] {
     cursor: not-allowed;
   }
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  .btn-warning {
+    @apply rounded-md border border-amber-300 px-3 py-2 text-sm text-amber-800 disabled:opacity-50;
+  }
+}
+
+@layer components {
+  .input {
+    @apply rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none;
+  }
+  .btn-primary {
+    @apply rounded-md bg-neutral-900 px-4 py-2 text-sm text-white disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply rounded-md border border-neutral-300 px-3 py-2 text-sm disabled:opacity-50;
+  }
+  .btn-danger {
+    @apply rounded-md border border-red-300 px-3 py-2 text-sm text-red-700 disabled:opacity-50;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full border border-neutral-200 px-2 py-0.5 text-xs text-neutral-700;
+  }
+  .badge-success {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-800;
+  }
+  .badge-warning {
+    @apply border-amber-200 bg-amber-50 text-amber-800;
+  }
+  .badge-danger {
+    @apply border-red-200 bg-red-50 text-red-800;
+  }
+  .badge-muted {
+    @apply border-neutral-200 bg-neutral-50 text-neutral-600;
+  }
 }

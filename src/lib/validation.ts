@@ -53,11 +53,25 @@ export const createSaleSchema = z.object({
   payment: salePaymentSchema.optional(),
 });
 
+export const updateSaleSchema = z.object({
+  saleDate: z.coerce.date().optional(),
+  deliveryCharge: z.coerce.number().min(0).nullish(),
+  notes: z.string().trim().optional(),
+});
+
 export const addSalePaymentSchema = salePaymentSchema.extend({
   amount: z.coerce.number().positive("Amount must be greater than zero."),
 });
 
 export const addSupplierPaymentSchema = z.object({
+  amount: z.coerce.number().positive("Amount must be greater than zero."),
+  paymentDate: z.coerce.date(),
+  method: z.enum(["CASH", "BANK", "MOBILE_MONEY", "OTHER"]),
+  reference: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export const paySupplierOutstandingSchema = z.object({
   amount: z.coerce.number().positive("Amount must be greater than zero."),
   paymentDate: z.coerce.date(),
   method: z.enum(["CASH", "BANK", "MOBILE_MONEY", "OTHER"]),

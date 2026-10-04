@@ -4,7 +4,7 @@ import { addSalePaymentSchema } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const { id } = await ctx.params;
 
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ id: st
     );
   }
   try {
-    const payment = await addSalePayment(id, parsed.data);
+    const payment = await addSalePayment(user!.id, id, parsed.data);
     return NextResponse.json({ data: payment }, { status: 201 });
   } catch (err) {
     return NextResponse.json(

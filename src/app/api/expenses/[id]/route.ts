@@ -6,16 +6,16 @@ import { NextRequest, NextResponse } from "next/server";
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function GET(_request: NextRequest, ctx: Ctx) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const { id } = await ctx.params;
-  const expense = await getExpense(id);
+  const expense = await getExpense(user!.id, id);
   if (!expense) return NextResponse.json({ error: { code: "NOT_FOUND", message: "Expense not found." } }, { status: 404 });
   return NextResponse.json({ data: expense });
 }
 
 export async function PATCH(request: NextRequest, ctx: Ctx) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const { id } = await ctx.params;
   const parsed = updateExpenseSchema.safeParse(await request.json());
@@ -25,14 +25,14 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
       { status: 400 }
     );
   }
-  const expense = await updateExpense(id, parsed.data);
+  const expense = await updateExpense(user!.id, id, parsed.data);
   return NextResponse.json({ data: expense });
 }
 
 export async function DELETE(_request: NextRequest, ctx: Ctx) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const { id } = await ctx.params;
-  await deleteExpense(id);
+  await deleteExpense(user!.id, id);
   return NextResponse.json({ data: { id } });
 }

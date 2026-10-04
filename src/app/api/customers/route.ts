@@ -4,13 +4,13 @@ import { createCustomerSchema } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
-  return NextResponse.json({ data: await listCustomers() });
+  return NextResponse.json({ data: await listCustomers(user!.id) });
 }
 
 export async function POST(request: NextRequest) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const parsed = createCustomerSchema.safeParse(await request.json());
   if (!parsed.success) {
@@ -19,6 +19,6 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  const customer = await createCustomer(parsed.data);
+  const customer = await createCustomer(user!.id, parsed.data);
   return NextResponse.json({ data: customer }, { status: 201 });
 }

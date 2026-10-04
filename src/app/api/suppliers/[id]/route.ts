@@ -6,16 +6,16 @@ import { NextRequest, NextResponse } from "next/server";
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function GET(_request: NextRequest, ctx: Ctx) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const { id } = await ctx.params;
-  const supplier = await getSupplier(id);
+  const supplier = await getSupplier(user!.id, id);
   if (!supplier) return NextResponse.json({ error: { code: "NOT_FOUND", message: "Supplier not found." } }, { status: 404 });
   return NextResponse.json({ data: supplier });
 }
 
 export async function PATCH(request: NextRequest, ctx: Ctx) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const { id } = await ctx.params;
 
@@ -26,6 +26,6 @@ export async function PATCH(request: NextRequest, ctx: Ctx) {
       { status: 400 }
     );
   }
-  const supplier = await updateSupplier(id, parsed.data);
+  const supplier = await updateSupplier(user!.id, id, parsed.data);
   return NextResponse.json({ data: supplier });
 }

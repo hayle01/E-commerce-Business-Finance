@@ -4,10 +4,10 @@ import { createExpenseSchema } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const sp = request.nextUrl.searchParams;
-  const expenses = await listExpenses({
+  const expenses = await listExpenses(user!.id, {
     from: sp.get("from") ?? undefined,
     to: sp.get("to") ?? undefined,
     categoryId: sp.get("categoryId") ?? undefined,
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const parsed = createExpenseSchema.safeParse(await request.json());
   if (!parsed.success) {
@@ -27,6 +27,6 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  const expense = await createExpense(parsed.data);
+  const expense = await createExpense(user!.id, parsed.data);
   return NextResponse.json({ data: expense }, { status: 201 });
 }

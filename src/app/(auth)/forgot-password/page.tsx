@@ -1,7 +1,9 @@
 "use client";
 
+import { IconInput } from "@/components/ui/icon-input";
 import { AuthFormShell } from "@/components/auth/auth-form-shell";
 import { authClient } from "@/lib/auth-client";
+import { Mail } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -29,12 +31,12 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <AuthFormShell title="Forgot password" footer={<Link className="underline" href="/sign-in">Back to sign in</Link>}>
+    <AuthFormShell title="Forgot password" description="Enter the email for your account and we'll send you a secure reset link." footer={<Link className="underline" href="/sign-in">Back to sign in</Link>}>
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
-        <input className="rounded-md border border-neutral-300 px-3 py-2" type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <IconInput icon={Mail} type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
         {error && <p className="text-sm text-red-600">{error}</p>}
         {message && <p className="text-sm text-green-700">{message}</p>}
-        <button disabled={loading} className="rounded-md bg-neutral-900 px-3 py-2 text-white disabled:opacity-50">{loading ? "Sending…" : "Send reset link"}</button>
+        <button disabled={loading} className="btn-primary px-3 disabled:opacity-50">{loading ? "Sending…" : "Send reset link"}</button>
       </form>
     </AuthFormShell>
   );

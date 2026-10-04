@@ -4,14 +4,14 @@ import { createInventorySchema } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
-  const items = await listInventoryItems();
+  const items = await listInventoryItems(user!.id);
   return NextResponse.json({ data: items });
 }
 
 export async function POST(request: NextRequest) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
 
   const parsed = createInventorySchema.safeParse(await request.json());
@@ -21,6 +21,6 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  const item = await createInventoryItem(parsed.data);
+  const item = await createInventoryItem(user!.id, parsed.data);
   return NextResponse.json({ data: item }, { status: 201 });
 }

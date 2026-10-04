@@ -4,13 +4,13 @@ import { createRecurringSchema } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
-  return NextResponse.json({ data: await listRecurring() });
+  return NextResponse.json({ data: await listRecurring(user!.id) });
 }
 
 export async function POST(request: NextRequest) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const parsed = createRecurringSchema.safeParse(await request.json());
   if (!parsed.success) {
@@ -19,6 +19,6 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  const template = await createRecurring(parsed.data);
+  const template = await createRecurring(user!.id, parsed.data);
   return NextResponse.json({ data: template }, { status: 201 });
 }

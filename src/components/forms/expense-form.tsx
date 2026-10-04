@@ -81,7 +81,7 @@ export function ExpenseForm({ categories }: { categories: Category[] }) {
           min={0.01}
           step="0.01"
           inputMode="decimal"
-          className="rounded-md border border-neutral-300 px-3 py-3 text-2xl"
+          className="input text-2xl py-3"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
@@ -89,17 +89,17 @@ export function ExpenseForm({ categories }: { categories: Category[] }) {
 
       <label className="flex flex-col gap-1 text-sm">
         Date
-        <input type="date" required className="rounded-md border border-neutral-300 px-3 py-2" value={expenseDate} onChange={(e) => setExpenseDate(e.target.value)} />
+        <input type="date" required className="input" value={expenseDate} onChange={(e) => setExpenseDate(e.target.value)} />
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
         Description
-        <input className="rounded-md border border-neutral-300 px-3 py-2" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <input className="input" value={description} onChange={(e) => setDescription(e.target.value)} />
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
         Payment method
-        <select className="rounded-md border border-neutral-300 px-3 py-2" value={method} onChange={(e) => setMethod(e.target.value as never)}>
+        <select className="input" value={method} onChange={(e) => setMethod(e.target.value as never)}>
           <option value="CASH">Cash</option>
           <option value="BANK">Bank</option>
           <option value="MOBILE_MONEY">Mobile money</option>
@@ -108,9 +108,11 @@ export function ExpenseForm({ categories }: { categories: Category[] }) {
       </label>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <button disabled={loading} className="rounded-md bg-neutral-900 px-4 py-2 text-white disabled:opacity-50">
+      <div className="sticky bottom-0 border-t border-neutral-200 bg-white py-3">
+      <button disabled={loading} className="btn-primary w-full md:w-auto">
         {loading ? "Saving…" : "Save expense"}
       </button>
+      </div>
     </form>
   );
 }

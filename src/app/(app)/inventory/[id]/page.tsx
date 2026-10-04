@@ -2,10 +2,12 @@ import { getInventoryItem } from "@/lib/services/inventory";
 import { formatMoney } from "@/lib/format";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getSessionUser } from "@/lib/api";
 
 export default async function InventoryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const item = await getInventoryItem(id);
+  const user = (await getSessionUser())!;
+  const item = await getInventoryItem(user.id, id);
   if (!item) notFound();
 
   const quantitySold = item.initialQuantity - item.availableQuantity;

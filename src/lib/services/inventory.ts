@@ -1,16 +1,17 @@
 import { prisma } from "@/lib/db";
 import type { CreateInventoryInput, UpdateInventoryInput } from "@/lib/validation";
 
-export async function listInventoryItems() {
+export async function listInventoryItems(userId: string) {
   return prisma.inventoryItem.findMany({
+    where: { userId },
     include: { supplier: true, category: true },
     orderBy: { createdAt: "desc" },
   });
 }
 
-export async function getInventoryItem(id: string) {
-  return prisma.inventoryItem.findUnique({
-    where: { id },
+export async function getInventoryItem(userId: string, id: string) {
+  return prisma.inventoryItem.findFirst({
+    where: { id, userId },
     include: {
       supplier: true,
       category: true,
@@ -19,9 +20,10 @@ export async function getInventoryItem(id: string) {
   });
 }
 
-export async function createInventoryItem(input: CreateInventoryInput) {
+export async function createInventoryItem(userId: string, input: CreateInventoryInput) {
   return prisma.inventoryItem.create({
     data: {
+      userId,
       id: input.id,
       name: input.name,
       supplierId: input.supplierId,
@@ -43,7 +45,9 @@ export async function createInventoryItem(input: CreateInventoryInput) {
   });
 }
 
-export async function updateInventoryItem(id: string, input: UpdateInventoryInput) {
+export async function updateInventoryItem(userId: string, id: string, input: UpdateInventoryInput) {
+  const existing = await prisma.inventoryItem.findFirst({ where: { id, userId } });
+  if (!existing) throw new Error("Inventory item not found.");
   return prisma.inventoryItem.update({
     where: { id },
     data: {

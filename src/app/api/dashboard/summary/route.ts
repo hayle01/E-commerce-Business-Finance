@@ -3,9 +3,9 @@ import { endOfDay, getFinancialSummary, startOfDay } from "@/lib/services/report
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const from = startOfDay(new Date(request.nextUrl.searchParams.get("from") ?? new Date(0)));
   const to = endOfDay(new Date(request.nextUrl.searchParams.get("to") ?? new Date()));
-  return NextResponse.json({ data: await getFinancialSummary({ from, to }) });
+  return NextResponse.json({ data: await getFinancialSummary(user!.id, { from, to }) });
 }

@@ -3,11 +3,11 @@ import { recordRecurringExpense } from "@/lib/services/recurring";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(_request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const { id } = await ctx.params;
   try {
-    const expense = await recordRecurringExpense(id);
+    const expense = await recordRecurringExpense(user!.id, id);
     return NextResponse.json({ data: expense }, { status: 201 });
   } catch (err) {
     return NextResponse.json(

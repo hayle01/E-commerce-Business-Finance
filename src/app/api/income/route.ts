@@ -4,10 +4,10 @@ import { createIncomeSchema } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const sp = request.nextUrl.searchParams;
-  const income = await listOtherIncome({
+  const income = await listOtherIncome(user!.id, {
     from: sp.get("from") ?? undefined,
     to: sp.get("to") ?? undefined,
     categoryId: sp.get("categoryId") ?? undefined,
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const parsed = createIncomeSchema.safeParse(await request.json());
   if (!parsed.success) {
@@ -26,6 +26,6 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  const income = await createOtherIncome(parsed.data);
+  const income = await createOtherIncome(user!.id, parsed.data);
   return NextResponse.json({ data: income }, { status: 201 });
 }

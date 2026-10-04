@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthFormShell } from "@/components/auth/auth-form-shell";
+import { PasswordInput } from "@/components/ui/password-input";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -37,12 +38,12 @@ function ResetPasswordForm() {
   }
 
   return (
-    <AuthFormShell title="Reset password" footer={<Link className="underline" href="/sign-in">Back to sign in</Link>}>
+    <AuthFormShell title="Reset password" description="Choose a new password for your account." footer={<Link className="underline" href="/sign-in">Back to sign in</Link>}>
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
-        <input className="rounded-md border border-neutral-300 px-3 py-2" type="password" required placeholder="New password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <input className="rounded-md border border-neutral-300 px-3 py-2" type="password" required placeholder="Confirm new password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+        <PasswordInput placeholder="New password" required value={password} onChange={setPassword} />
+        <PasswordInput placeholder="Confirm new password" required value={confirmPassword} onChange={setConfirmPassword} />
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button disabled={loading} className="rounded-md bg-neutral-900 px-3 py-2 text-white disabled:opacity-50">{loading ? "Resetting…" : "Reset password"}</button>
+        <button disabled={loading} className="btn-primary px-3 disabled:opacity-50">{loading ? "Resetting…" : "Reset password"}</button>
       </form>
     </AuthFormShell>
   );

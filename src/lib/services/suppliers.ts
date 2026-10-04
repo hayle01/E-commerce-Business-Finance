@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/db";
 import type { CreateSupplierInput, UpdateSupplierInput } from "@/lib/validation";
 
-export async function listSuppliers() {
+export async function listSuppliers(userId: string) {
   const suppliers = await prisma.supplier.findMany({
+    where: { userId },
     orderBy: { createdAt: "desc" },
     include: {
       _count: { select: { inventoryItems: { where: { isActive: true } } } },
@@ -22,20 +23,22 @@ export async function listSuppliers() {
   });
 }
 
-export async function getSupplier(id: string) {
-  return prisma.supplier.findUnique({
-    where: { id },
+export async function getSupplier(userId: string, id: string) {
+  return prisma.supplier.findFirst({
+    where: { id, userId },
     include: {
       inventoryItems: { where: { isActive: true } },
-      supplierPayables: { include: { payments: true } },
+      supplierPayables: { include: { payments: true, saleLine: { include: { sale: true } } } },
     },
   });
 }
 
-export async function createSupplier(input: CreateSupplierInput) {
-  return prisma.supplier.create({ data: input });
+export async function createSupplier(userId: string, input: CreateSupplierInput) {
+  return prisma.supplier.create({ data: { ...input, userId } });
 }
 
-export async function updateSupplier(id: string, input: UpdateSupplierInput) {
+export async function updateSupplier(userId: string, id: string, input: UpdateSupplierInput) {
+  const existing = await prisma.supplier.findFirst({ where: { id, userId } });
+  if (!existing) throw new Error("Supplier not found.");
   return prisma.supplier.update({ where: { id }, data: input });
 }

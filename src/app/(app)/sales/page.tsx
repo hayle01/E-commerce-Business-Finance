@@ -1,6 +1,8 @@
 import { listSales } from "@/lib/services/sales";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatDate } from "@/lib/format";
 import Link from "next/link";
+import { ClickableRow } from "@/components/clickable-row";
+import { getSessionUser } from "@/lib/api";
 
 export default async function SalesPage({
   searchParams,
@@ -8,37 +10,38 @@ export default async function SalesPage({
   searchParams: Promise<{ q?: string; status?: string; paymentStatus?: string }>;
 }) {
   const filters = await searchParams;
-  const sales = await listSales(filters);
+  const user = (await getSessionUser())!;
+  const sales = await listSales(user.id, filters);
 
   return (
     <main className="p-4 md:p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">Sales</h1>
-        <Link href="/sales/new" className="rounded-md bg-neutral-900 px-3 py-2 text-sm text-white">Record sale</Link>
+        <Link href="/sales/new" className="btn-primary text-sm px-3">Record sale</Link>
       </div>
 
       <form className="mb-4 flex flex-wrap gap-2" action="/sales">
-        <input name="q" defaultValue={filters.q} placeholder="Search order or customer" className="rounded-md border border-neutral-300 px-3 py-2 text-sm" />
-        <select name="status" defaultValue={filters.status ?? ""} className="rounded-md border border-neutral-300 px-3 py-2 text-sm">
+        <input name="q" defaultValue={filters.q} placeholder="Search order or customer" className="btn-secondary" />
+        <select name="status" defaultValue={filters.status ?? ""} className="btn-secondary">
           <option value="">All statuses</option>
           {["DRAFT", "CONFIRMED", "DELIVERED", "CANCELLED", "RETURNED"].map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
         </select>
-        <select name="paymentStatus" defaultValue={filters.paymentStatus ?? ""} className="rounded-md border border-neutral-300 px-3 py-2 text-sm">
+        <select name="paymentStatus" defaultValue={filters.paymentStatus ?? ""} className="btn-secondary">
           <option value="">All payments</option>
           {["UNPAID", "PARTIAL", "PAID", "REFUNDED"].map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
         </select>
-        <button className="rounded-md border border-neutral-300 px-3 py-2 text-sm">Filter</button>
+        <button className="btn-secondary">Filter</button>
       </form>
 
       {sales.length === 0 ? (
         <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center">
           <p className="font-medium">No sales yet</p>
           <p className="mt-1 text-sm text-neutral-500">Record your first sale to start tracking revenue and profit.</p>
-          <Link href="/sales/new" className="mt-4 inline-block rounded-md bg-neutral-900 px-4 py-2 text-sm text-white">Record sale</Link>
+          <Link href="/sales/new" className="mt-4 inline-block btn-primary">Record sale</Link>
         </div>
       ) : (
         <>
@@ -61,7 +64,7 @@ export default async function SalesPage({
                   const revenue = sale.lines.reduce((s, l) => s + Number(l.lineRevenue), 0);
                   const profit = revenue - sale.lines.reduce((s, l) => s + Number(l.lineCOGS), 0);
                   return (
-                    <tr key={sale.id} className="border-b border-neutral-100 hover:bg-neutral-50">
+                    <ClickableRow key={sale.id} href={`/sales/${sale.id}`}>
                       <td className="py-2 pr-4"><Link href={`/sales/${sale.id}`} className="font-medium">{sale.orderNumber}</Link></td>
                       <td className="py-2 pr-4 text-neutral-600">{sale.customer?.name ?? "—"}</td>
                       <td className="py-2 pr-4 text-right">{sale._count.lines}</td>
@@ -69,8 +72,8 @@ export default async function SalesPage({
                       <td className="py-2 pr-4 text-right">{formatMoney(profit)}</td>
                       <td className="py-2 pr-4 text-neutral-600">{sale.paymentStatus}</td>
                       <td className="py-2 pr-4 text-neutral-600">{sale.status}</td>
-                      <td className="py-2 text-neutral-600">{new Date(sale.saleDate).toLocaleDateString()}</td>
-                    </tr>
+                      <td className="py-2 text-neutral-600">{formatDate(sale.saleDate)}</td>
+                    </ClickableRow>
                   );
                 })}
               </tbody>
@@ -92,7 +95,7 @@ export default async function SalesPage({
                     <div className="text-right">
                       <p>{formatMoney(sale.total)}</p>
                       <p className="text-sm text-neutral-500">profit {formatMoney(profit)}</p>
-                      <p className="text-xs text-neutral-400">{new Date(sale.saleDate).toLocaleDateString()}</p>
+                      <p className="text-xs text-neutral-400">{formatDate(sale.saleDate)}</p>
                     </div>
                   </Link>
                 </li>

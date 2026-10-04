@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AccountMenu } from "@/components/account-menu";
 
 const MAIN_NAV = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/sales", label: "Sales" },
-  { href: "/inventory", label: "Inventory" },
+  { href: "/inventory", label: "Products" },
   { href: "/suppliers", label: "Suppliers" },
   { href: "/expenses", label: "Expenses" },
   { href: "/income", label: "Other Income" },
@@ -15,14 +16,12 @@ const MAIN_NAV = [
   { href: "/settings/account", label: "Settings" },
 ];
 
-function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
+export function MobileTopBar({ userName, userEmail }: { userName: string; userEmail: string }) {
   return (
-    <Link
-      href={href}
-      className={`block rounded-md px-3 py-2 text-sm ${active ? "bg-neutral-100 font-medium" : "text-neutral-600 hover:bg-neutral-50"}`}
-    >
-      {label}
-    </Link>
+    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-neutral-200 bg-white/95 px-4 py-3 backdrop-blur-none md:hidden">
+      <p className="text-sm font-semibold">Commerce & Finance</p>
+      <AccountMenu name={userName} email={userEmail} />
+    </header>
   );
 }
 
@@ -31,10 +30,20 @@ export function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-56 border-r border-neutral-200 bg-white p-4 md:block">
       <p className="mb-4 px-3 text-sm font-semibold tracking-wide text-neutral-900">Commerce & Finance</p>
-      <nav className="flex flex-col gap-1">
-        {MAIN_NAV.map((item) => (
-          <NavLink key={item.href} {...item} active={pathname.startsWith(item.href)} />
-        ))}
+      <nav aria-label="Primary" className="flex flex-col gap-1">
+        {MAIN_NAV.map((item) => {
+          const active = pathname.startsWith(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              className={`block rounded-md px-3 py-2 text-sm ${active ? "bg-neutral-100 font-medium" : "text-neutral-600 hover:bg-neutral-50"}`}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );
@@ -43,6 +52,14 @@ export function Sidebar() {
 export function MobileNav() {
   const pathname = usePathname();
   const [sheet, setSheet] = useState<"add" | "more" | null>(null);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setSheet(null);
+    }
+    if (sheet) document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [sheet]);
 
   const tabs = [
     { href: "/dashboard", label: "Home" },
@@ -57,7 +74,10 @@ export function MobileNav() {
       {sheet && (
         <div className="fixed inset-0 z-40 bg-black/30" onClick={() => setSheet(null)}>
           <div
-            className="absolute inset-x-0 bottom-0 rounded-t-xl bg-white p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-label={sheet === "add" ? "Quick add" : "More"}
+            className="absolute inset-x-0 bottom-0 rounded-t-xl bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
             onClick={(e) => e.stopPropagation()}
           >
             {sheet === "add" && (
@@ -77,7 +97,7 @@ export function MobileNav() {
             {sheet === "more" && (
               <div className="flex flex-col gap-1">
                 {[
-                  ["/inventory", "Inventory"],
+                  ["/inventory", "Products"],
                   ["/suppliers", "Suppliers"],
                   ["/income", "Other Income"],
                   ["/reports", "Reports"],
@@ -93,12 +113,13 @@ export function MobileNav() {
         </div>
       )}
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-neutral-200 bg-white md:hidden">
+      <nav aria-label="Primary mobile" className="fixed inset-x-0 bottom-0 z-30 flex border-t border-neutral-200 bg-white pb-[env(safe-area-inset-bottom)] md:hidden">
         {tabs.map((tab) =>
           tab.href.startsWith("#") ? (
             <button
               key={tab.label}
               type="button"
+              aria-expanded={sheet === tab.href.slice(1)}
               className="flex-1 py-3 text-center text-sm text-neutral-700"
               onClick={() => setSheet(sheet === tab.href.slice(1) ? null : (tab.href.slice(1) as "add" | "more"))}
             >
@@ -108,6 +129,7 @@ export function MobileNav() {
             <Link
               key={tab.label}
               href={tab.href}
+              aria-current={pathname.startsWith(tab.href) ? "page" : undefined}
               className={`flex-1 py-3 text-center text-sm ${pathname.startsWith(tab.href) ? "font-medium text-neutral-900" : "text-neutral-500"}`}
             >
               {tab.label}

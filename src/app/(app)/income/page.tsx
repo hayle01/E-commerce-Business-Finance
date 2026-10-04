@@ -1,6 +1,7 @@
 import { listOtherIncome } from "@/lib/services/income";
 import { prisma } from "@/lib/db";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatDate } from "@/lib/format";
+import { getSessionUser } from "@/lib/api";
 import Link from "next/link";
 
 export default async function IncomePage({
@@ -9,8 +10,9 @@ export default async function IncomePage({
   searchParams: Promise<{ from?: string; to?: string; categoryId?: string; method?: string }>;
 }) {
   const filters = await searchParams;
+  const user = (await getSessionUser())!;
   const [income, categories] = await Promise.all([
-    listOtherIncome(filters),
+    listOtherIncome(user.id, filters),
     prisma.category.findMany({ where: { type: "INCOME" }, orderBy: { name: "asc" } }),
   ]);
 
@@ -18,28 +20,28 @@ export default async function IncomePage({
     <main className="p-4 md:p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">Other income</h1>
-        <Link href="/income/new" className="rounded-md bg-neutral-900 px-3 py-2 text-sm text-white">Add income</Link>
+        <Link href="/income/new" className="btn-primary text-sm px-3">Add income</Link>
       </div>
 
       <form className="mb-4 flex flex-wrap gap-2" action="/income">
-        <input type="date" name="from" defaultValue={filters.from} className="rounded-md border border-neutral-300 px-3 py-2 text-sm" />
-        <input type="date" name="to" defaultValue={filters.to} className="rounded-md border border-neutral-300 px-3 py-2 text-sm" />
-        <select name="categoryId" defaultValue={filters.categoryId ?? ""} className="rounded-md border border-neutral-300 px-3 py-2 text-sm">
+        <input type="date" name="from" defaultValue={filters.from} className="btn-secondary" />
+        <input type="date" name="to" defaultValue={filters.to} className="btn-secondary" />
+        <select name="categoryId" defaultValue={filters.categoryId ?? ""} className="btn-secondary">
           <option value="">All categories</option>
           {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
-        <select name="method" defaultValue={filters.method ?? ""} className="rounded-md border border-neutral-300 px-3 py-2 text-sm">
+        <select name="method" defaultValue={filters.method ?? ""} className="btn-secondary">
           <option value="">All methods</option>
           {["CASH", "BANK", "MOBILE_MONEY", "OTHER"].map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
-        <button className="rounded-md border border-neutral-300 px-3 py-2 text-sm">Filter</button>
+        <button className="btn-secondary">Filter</button>
       </form>
 
       {income.length === 0 ? (
         <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center">
           <p className="font-medium">No other income yet</p>
           <p className="mt-1 text-sm text-neutral-500">Record freelance, gifts, commission and side work.</p>
-          <Link href="/income/new" className="mt-4 inline-block rounded-md bg-neutral-900 px-4 py-2 text-sm text-white">Add income</Link>
+          <Link href="/income/new" className="mt-4 inline-block btn-primary">Add income</Link>
         </div>
       ) : (
         <>
@@ -49,6 +51,7 @@ export default async function IncomePage({
                 <tr className="border-b border-neutral-200 text-left text-neutral-500">
                   <th className="py-2 pr-4 font-medium">Date</th>
                   <th className="py-2 pr-4 font-medium">Category</th>
+                  <th className="py-2 pr-4 font-medium">Kind</th>
                   <th className="py-2 pr-4 font-medium">Description</th>
                   <th className="py-2 pr-4 text-right font-medium">Amount</th>
                   <th className="py-2 font-medium">Payment Method</th>
@@ -57,8 +60,9 @@ export default async function IncomePage({
               <tbody>
                 {income.map((i) => (
                   <tr key={i.id} className="border-b border-neutral-100 hover:bg-neutral-50">
-                    <td className="py-2 pr-4">{new Date(i.incomeDate).toLocaleDateString()}</td>
+                    <td className="py-2 pr-4">{formatDate(i.incomeDate)}</td>
                     <td className="py-2 pr-4"><Link href={`/income/${i.id}`} className="font-medium">{i.category.name}</Link></td>
+                    <td className="py-2 pr-4 text-neutral-600">{i.incomeKind === "PERSONAL" ? "Personal" : "Business"}</td>
                     <td className="py-2 pr-4 text-neutral-600">{i.description ?? "—"}</td>
                     <td className="py-2 pr-4 text-right">{formatMoney(i.amount)}</td>
                     <td className="py-2 text-neutral-600">{i.paymentMethod}</td>
@@ -74,7 +78,7 @@ export default async function IncomePage({
                 <Link href={`/income/${i.id}`} className="flex items-center justify-between py-3">
                   <div>
                     <p className="font-medium">{i.category.name}</p>
-                    <p className="text-sm text-neutral-500">{new Date(i.incomeDate).toLocaleDateString()}</p>
+                    <p className="text-sm text-neutral-500">{i.incomeKind === "PERSONAL" ? "Personal" : "Business"} · {formatDate(i.incomeDate)}</p>
                     {i.description && <p className="text-sm text-neutral-600">{i.description}</p>}
                   </div>
                   <p className="font-medium">+{formatMoney(i.amount)}</p>

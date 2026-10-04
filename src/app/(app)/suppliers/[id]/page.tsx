@@ -1,11 +1,16 @@
 import { getSupplier } from "@/lib/services/suppliers";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatDate } from "@/lib/format";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { PaySupplierForm } from "@/components/pay-supplier-form";
+import { PayablePayButton } from "@/components/payable-pay-button";
+import { getSessionUser } from "@/lib/api";
 
 export default async function SupplierDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supplier = await getSupplier(id);
+  const user = (await getSessionUser())!;
+  const supplier = await getSupplier(user.id, id);
   if (!supplier) notFound();
 
   const owed = supplier.supplierPayables
@@ -25,6 +30,37 @@ export default async function SupplierDetailPage({ params }: { params: Promise<{
         <dt className="text-neutral-500">Location</dt><dd>{supplier.location ?? "—"}</dd>
         <dt className="text-neutral-500">Amount owed</dt><dd>{formatMoney(owed)}</dd>
       </dl>
+
+      <section className="mt-8">
+        <h2 className="mb-2 text-lg font-semibold">Payables</h2>
+        {supplier.supplierPayables.length === 0 ? (
+          <p className="text-sm text-neutral-500">No payables yet — they are created when a sale is delivered.</p>
+        ) : (
+          <>
+            <PaySupplierForm supplierId={supplier.id} outstanding={owed} />
+            <ul className="mt-4 divide-y divide-neutral-100">
+              {supplier.supplierPayables.map((p) => (
+                <li key={p.id} className="py-3 text-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <Link href={`/sales/${p.saleLine.sale.id}`} className="font-medium">{p.saleLine.sale.orderNumber}</Link>
+                      <p className="text-xs text-neutral-400">{formatDate(p.createdAt)} · {p.saleLine.itemNameSnapshot}</p>
+                    </div>
+                    <div className="text-right">
+                      <p>{formatMoney(p.amountPaid)} / {formatMoney(p.amountDue)}</p>
+                      <Badge
+                        label={p.status}
+                        variant={p.status === "PAID" ? "success" : p.status === "PARTIAL" ? "warning" : "muted"}
+                      />
+                    </div>
+                  </div>
+                  <PayablePayButton payableId={p.id} outstanding={Number(p.amountDue) - Number(p.amountPaid)} />
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </section>
 
       <section className="mt-8">
         <h2 className="mb-2 text-lg font-semibold">Active items</h2>

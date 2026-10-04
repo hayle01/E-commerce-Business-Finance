@@ -19,9 +19,10 @@ function cents(v: unknown): number {
   return toCents(Number(v ?? 0));
 }
 
-async function deliveredSales(range: Range) {
+async function deliveredSales(userId: string, range: Range) {
   return prisma.sale.findMany({
     where: {
+      userId,
       status: "DELIVERED",
       deliveredAt: { gte: range.from, lte: range.to },
     },
@@ -31,27 +32,27 @@ async function deliveredSales(range: Range) {
   });
 }
 
-async function expensesIn(range: Range) {
+async function expensesIn(userId: string, range: Range) {
   return prisma.expense.findMany({
-    where: { expenseDate: { gte: range.from, lte: range.to } },
+    where: { userId, expenseDate: { gte: range.from, lte: range.to } },
     include: { category: true },
   });
 }
 
-async function incomesIn(range: Range) {
+async function incomesIn(userId: string, range: Range) {
   return prisma.otherIncome.findMany({
-    where: { incomeDate: { gte: range.from, lte: range.to } },
+    where: { userId, incomeDate: { gte: range.from, lte: range.to } },
     include: { category: true },
   });
 }
 
-export async function getFinancialSummary(range: Range) {
+export async function getFinancialSummary(userId: string, range: Range) {
   const [sales, expenses, incomes, salePayments, supplierPayments] = await Promise.all([
-    deliveredSales(range),
-    expensesIn(range),
-    incomesIn(range),
-    prisma.salePayment.findMany({ where: { paymentDate: { gte: range.from, lte: range.to } } }),
-    prisma.supplierPayment.findMany({ where: { paymentDate: { gte: range.from, lte: range.to } } }),
+    deliveredSales(userId, range),
+    expensesIn(userId, range),
+    incomesIn(userId, range),
+    prisma.salePayment.findMany({ where: { paymentDate: { gte: range.from, lte: range.to }, sale: { userId } } }),
+    prisma.supplierPayment.findMany({ where: { paymentDate: { gte: range.from, lte: range.to }, supplierPayable: { userId } } }),
   ]);
 
   let revenueCents = 0;
@@ -90,7 +91,7 @@ export async function getFinancialSummary(range: Range) {
     personalExpenseCents;
 
   const outstandingPayables = await prisma.supplierPayable.findMany({
-    where: { status: { not: "PAID" } },
+    where: { userId, status: { not: "PAID" } },
     select: { amountDue: true, amountPaid: true },
   });
   const supplierOutstandingCents = outstandingPayables.reduce(
@@ -130,13 +131,13 @@ function eachDay(range: Range): string[] {
   return days;
 }
 
-export async function getTrends(range: Range) {
+export async function getTrends(userId: string, range: Range) {
   const [sales, expenses, salePayments, supplierPayments, incomes] = await Promise.all([
-    deliveredSales(range),
-    expensesIn(range),
-    prisma.salePayment.findMany({ where: { paymentDate: { gte: range.from, lte: range.to } } }),
-    prisma.supplierPayment.findMany({ where: { paymentDate: { gte: range.from, lte: range.to } } }),
-    incomesIn(range),
+    deliveredSales(userId, range),
+    expensesIn(userId, range),
+    prisma.salePayment.findMany({ where: { paymentDate: { gte: range.from, lte: range.to }, sale: { userId } } }),
+    prisma.supplierPayment.findMany({ where: { paymentDate: { gte: range.from, lte: range.to }, supplierPayable: { userId } } }),
+    incomesIn(userId, range),
   ]);
 
   const revenueByDay = new Map<string, number>();
@@ -186,13 +187,13 @@ export async function getTrends(range: Range) {
   };
 }
 
-export async function getReportBreakdowns(range: Range) {
+export async function getReportBreakdowns(userId: string, range: Range) {
   const [sales, expenses, incomes, payablesCreated, supplierPayments] = await Promise.all([
-    deliveredSales(range),
-    expensesIn(range),
-    incomesIn(range),
-    prisma.supplierPayable.findMany({ where: { createdAt: { gte: range.from, lte: range.to } } }),
-    prisma.supplierPayment.findMany({ where: { paymentDate: { gte: range.from, lte: range.to } } }),
+    deliveredSales(userId, range),
+    expensesIn(userId, range),
+    incomesIn(userId, range),
+    prisma.supplierPayable.findMany({ where: { userId, createdAt: { gte: range.from, lte: range.to } } }),
+    prisma.supplierPayment.findMany({ where: { paymentDate: { gte: range.from, lte: range.to }, supplierPayable: { userId } } }),
   ]);
 
   const revenueByDay = new Map<string, number>();
@@ -246,7 +247,7 @@ export async function getReportBreakdowns(range: Range) {
 
   // Supplier liabilities across the same range.
   const payablesBefore = await prisma.supplierPayable.findMany({
-    where: { createdAt: { lt: range.from } },
+    where: { userId, createdAt: { lt: range.from } },
     include: { payments: { where: { paymentDate: { lt: range.from } } } },
   });
   const openingCents = payablesBefore.reduce(

@@ -1,15 +1,17 @@
 import { listInventoryItems } from "@/lib/services/inventory";
 import { formatMoney } from "@/lib/format";
 import Link from "next/link";
+import { getSessionUser } from "@/lib/api";
 
 export default async function InventoryPage() {
-  const items = await listInventoryItems();
+  const user = (await getSessionUser())!;
+  const items = await listInventoryItems(user.id);
 
   return (
     <main className="p-4 md:p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">Inventory</h1>
-        <Link href="/inventory/new" className="rounded-md bg-neutral-900 px-3 py-2 text-sm text-white">
+        <Link href="/inventory/new" className="btn-primary text-sm px-3">
           Add item
         </Link>
       </div>
@@ -18,7 +20,7 @@ export default async function InventoryPage() {
         <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center">
           <p className="font-medium">No inventory items yet</p>
           <p className="mt-1 text-sm text-neutral-500">Record your first sourced product to start tracking stock.</p>
-          <Link href="/inventory/new" className="mt-4 inline-block rounded-md bg-neutral-900 px-4 py-2 text-sm text-white">
+          <Link href="/inventory/new" className="mt-4 inline-block btn-primary">
             Add item
           </Link>
         </div>

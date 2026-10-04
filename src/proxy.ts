@@ -25,19 +25,18 @@ export function proxy(request: NextRequest) {
 
   const authed = hasSessionCookie(request);
 
+  // Only redirect guests to sign-in. Never bounce cookie-bearing users off
+  // auth pages here: a stale/invalid cookie would ping-pong (cookie exists
+  // but session is gone → page redirects to /sign-in, proxy bounces back).
   if (!authed && !isAuthPage) {
     const signInUrl = new URL("/sign-in", request.url);
     signInUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(signInUrl);
   }
 
-  if (authed && isAuthPage) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|icon.svg|offline).*)"],
 };

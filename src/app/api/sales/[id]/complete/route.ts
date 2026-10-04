@@ -3,11 +3,11 @@ import { markDelivered } from "@/lib/services/sales";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(_request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const { id } = await ctx.params;
   try {
-    const sale = await markDelivered(id);
+    const sale = await markDelivered(user!.id, id);
     return NextResponse.json({ data: sale });
   } catch (err) {
     return NextResponse.json(

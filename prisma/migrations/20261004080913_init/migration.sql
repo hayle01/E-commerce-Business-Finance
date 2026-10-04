@@ -1,3 +1,6 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
+
 -- CreateEnum
 CREATE TYPE "CategoryType" AS ENUM ('EXPENSE', 'INCOME', 'PRODUCT');
 
@@ -19,9 +22,13 @@ CREATE TYPE "PaymentMethod" AS ENUM ('CASH', 'BANK', 'MOBILE_MONEY', 'OTHER');
 -- CreateEnum
 CREATE TYPE "RecurrenceFrequency" AS ENUM ('MONTHLY', 'WEEKLY', 'YEARLY');
 
+-- CreateEnum
+CREATE TYPE "IncomeKind" AS ENUM ('BUSINESS', 'PERSONAL');
+
 -- CreateTable
 CREATE TABLE "Supplier" (
     "id" UUID NOT NULL,
+    "userId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "shopName" TEXT,
     "phone" TEXT,
@@ -52,6 +59,7 @@ CREATE TABLE "Category" (
 -- CreateTable
 CREATE TABLE "InventoryItem" (
     "id" UUID NOT NULL,
+    "userId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
     "imageUrl" TEXT,
@@ -78,6 +86,7 @@ CREATE TABLE "InventoryItem" (
 -- CreateTable
 CREATE TABLE "Customer" (
     "id" UUID NOT NULL,
+    "userId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "phone" TEXT,
     "address" TEXT,
@@ -91,6 +100,7 @@ CREATE TABLE "Customer" (
 -- CreateTable
 CREATE TABLE "Sale" (
     "id" UUID NOT NULL,
+    "userId" TEXT NOT NULL,
     "orderNumber" TEXT NOT NULL,
     "customerId" UUID,
     "status" "SaleStatus" NOT NULL DEFAULT 'DRAFT',
@@ -144,6 +154,7 @@ CREATE TABLE "SalePayment" (
 -- CreateTable
 CREATE TABLE "SupplierPayable" (
     "id" UUID NOT NULL,
+    "userId" TEXT NOT NULL,
     "saleLineId" UUID NOT NULL,
     "supplierId" UUID NOT NULL,
     "amountDue" DECIMAL(14,2) NOT NULL,
@@ -173,6 +184,7 @@ CREATE TABLE "SupplierPayment" (
 -- CreateTable
 CREATE TABLE "Expense" (
     "id" UUID NOT NULL,
+    "userId" TEXT NOT NULL,
     "categoryId" UUID NOT NULL,
     "amount" DECIMAL(14,2) NOT NULL,
     "expenseDate" TIMESTAMP(3) NOT NULL,
@@ -188,6 +200,7 @@ CREATE TABLE "Expense" (
 -- CreateTable
 CREATE TABLE "RecurringExpenseTemplate" (
     "id" UUID NOT NULL,
+    "userId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "categoryId" UUID NOT NULL,
     "amount" DECIMAL(14,2) NOT NULL,
@@ -205,7 +218,9 @@ CREATE TABLE "RecurringExpenseTemplate" (
 -- CreateTable
 CREATE TABLE "OtherIncome" (
     "id" UUID NOT NULL,
+    "userId" TEXT NOT NULL,
     "categoryId" UUID NOT NULL,
+    "incomeKind" "IncomeKind" NOT NULL DEFAULT 'BUSINESS',
     "amount" DECIMAL(14,2) NOT NULL,
     "incomeDate" TIMESTAMP(3) NOT NULL,
     "description" TEXT,
@@ -277,10 +292,10 @@ CREATE TABLE "verification" (
 );
 
 -- CreateIndex
-CREATE INDEX "Category_type_expenseKind_idx" ON "Category"("type", "expenseKind");
+CREATE INDEX "Supplier_userId_idx" ON "Supplier"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "InventoryItem_sku_key" ON "InventoryItem"("sku");
+CREATE INDEX "Category_type_expenseKind_idx" ON "Category"("type", "expenseKind");
 
 -- CreateIndex
 CREATE INDEX "InventoryItem_supplierId_idx" ON "InventoryItem"("supplierId");
@@ -292,7 +307,13 @@ CREATE INDEX "InventoryItem_isActive_idx" ON "InventoryItem"("isActive");
 CREATE INDEX "InventoryItem_categoryId_idx" ON "InventoryItem"("categoryId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Sale_orderNumber_key" ON "Sale"("orderNumber");
+CREATE INDEX "InventoryItem_userId_idx" ON "InventoryItem"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "InventoryItem_userId_sku_key" ON "InventoryItem"("userId", "sku");
+
+-- CreateIndex
+CREATE INDEX "Customer_userId_idx" ON "Customer"("userId");
 
 -- CreateIndex
 CREATE INDEX "Sale_saleDate_idx" ON "Sale"("saleDate");
@@ -305,6 +326,12 @@ CREATE INDEX "Sale_paymentStatus_idx" ON "Sale"("paymentStatus");
 
 -- CreateIndex
 CREATE INDEX "Sale_customerId_idx" ON "Sale"("customerId");
+
+-- CreateIndex
+CREATE INDEX "Sale_userId_idx" ON "Sale"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Sale_userId_orderNumber_key" ON "Sale"("userId", "orderNumber");
 
 -- CreateIndex
 CREATE INDEX "SaleLine_saleId_idx" ON "SaleLine"("saleId");
@@ -328,6 +355,9 @@ CREATE INDEX "SupplierPayable_supplierId_idx" ON "SupplierPayable"("supplierId")
 CREATE INDEX "SupplierPayable_status_idx" ON "SupplierPayable"("status");
 
 -- CreateIndex
+CREATE INDEX "SupplierPayable_userId_idx" ON "SupplierPayable"("userId");
+
+-- CreateIndex
 CREATE INDEX "SupplierPayment_supplierPayableId_idx" ON "SupplierPayment"("supplierPayableId");
 
 -- CreateIndex
@@ -343,16 +373,25 @@ CREATE INDEX "Expense_categoryId_idx" ON "Expense"("categoryId");
 CREATE INDEX "Expense_recurringTemplateId_idx" ON "Expense"("recurringTemplateId");
 
 -- CreateIndex
+CREATE INDEX "Expense_userId_idx" ON "Expense"("userId");
+
+-- CreateIndex
 CREATE INDEX "RecurringExpenseTemplate_categoryId_idx" ON "RecurringExpenseTemplate"("categoryId");
 
 -- CreateIndex
 CREATE INDEX "RecurringExpenseTemplate_nextDueDate_idx" ON "RecurringExpenseTemplate"("nextDueDate");
 
 -- CreateIndex
+CREATE INDEX "RecurringExpenseTemplate_userId_idx" ON "RecurringExpenseTemplate"("userId");
+
+-- CreateIndex
 CREATE INDEX "OtherIncome_incomeDate_idx" ON "OtherIncome"("incomeDate");
 
 -- CreateIndex
 CREATE INDEX "OtherIncome_categoryId_idx" ON "OtherIncome"("categoryId");
+
+-- CreateIndex
+CREATE INDEX "OtherIncome_userId_idx" ON "OtherIncome"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
@@ -370,10 +409,22 @@ CREATE INDEX "account_userId_idx" ON "account"("userId");
 CREATE INDEX "verification_identifier_idx" ON "verification"("identifier");
 
 -- AddForeignKey
+ALTER TABLE "Supplier" ADD CONSTRAINT "Supplier_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InventoryItem" ADD CONSTRAINT "InventoryItem_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "InventoryItem" ADD CONSTRAINT "InventoryItem_supplierId_fkey" FOREIGN KEY ("supplierId") REFERENCES "Supplier"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "InventoryItem" ADD CONSTRAINT "InventoryItem_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Customer" ADD CONSTRAINT "Customer_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Sale" ADD CONSTRAINT "Sale_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Sale" ADD CONSTRAINT "Sale_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -388,6 +439,9 @@ ALTER TABLE "SaleLine" ADD CONSTRAINT "SaleLine_inventoryItemId_fkey" FOREIGN KE
 ALTER TABLE "SalePayment" ADD CONSTRAINT "SalePayment_saleId_fkey" FOREIGN KEY ("saleId") REFERENCES "Sale"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "SupplierPayable" ADD CONSTRAINT "SupplierPayable_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "SupplierPayable" ADD CONSTRAINT "SupplierPayable_saleLineId_fkey" FOREIGN KEY ("saleLineId") REFERENCES "SaleLine"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -397,13 +451,22 @@ ALTER TABLE "SupplierPayable" ADD CONSTRAINT "SupplierPayable_supplierId_fkey" F
 ALTER TABLE "SupplierPayment" ADD CONSTRAINT "SupplierPayment_supplierPayableId_fkey" FOREIGN KEY ("supplierPayableId") REFERENCES "SupplierPayable"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Expense" ADD CONSTRAINT "Expense_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Expense" ADD CONSTRAINT "Expense_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Expense" ADD CONSTRAINT "Expense_recurringTemplateId_fkey" FOREIGN KEY ("recurringTemplateId") REFERENCES "RecurringExpenseTemplate"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "RecurringExpenseTemplate" ADD CONSTRAINT "RecurringExpenseTemplate_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "RecurringExpenseTemplate" ADD CONSTRAINT "RecurringExpenseTemplate_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OtherIncome" ADD CONSTRAINT "OtherIncome_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OtherIncome" ADD CONSTRAINT "OtherIncome_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

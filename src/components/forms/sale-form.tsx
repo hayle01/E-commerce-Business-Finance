@@ -97,7 +97,7 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
       <div className="grid gap-4 md:grid-cols-2">
         <label className="flex flex-col gap-1 text-sm">
           Customer
-          <select className="rounded-md border border-neutral-300 px-3 py-2" value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
+          <select className="input" value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
             <option value="">Walk-in / new customer</option>
             {customers.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
@@ -107,16 +107,16 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
         {!customerId && (
           <label className="flex flex-col gap-1 text-sm">
             New customer name
-            <input className="rounded-md border border-neutral-300 px-3 py-2" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
+            <input className="input" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
           </label>
         )}
         <label className="flex flex-col gap-1 text-sm">
           Date
-          <input type="date" className="rounded-md border border-neutral-300 px-3 py-2" value={saleDate} onChange={(e) => setSaleDate(e.target.value)} />
+          <input type="date" className="input" value={saleDate} onChange={(e) => setSaleDate(e.target.value)} />
         </label>
         <label className="flex flex-col gap-1 text-sm">
           Status
-          <select className="rounded-md border border-neutral-300 px-3 py-2" value={status} onChange={(e) => setStatus(e.target.value as never)}>
+          <select className="input" value={status} onChange={(e) => setStatus(e.target.value as never)}>
             <option value="DRAFT">Draft</option>
             <option value="CONFIRMED">Confirmed</option>
             <option value="DELIVERED">Delivered</option>
@@ -127,7 +127,7 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
       <div>
         <input
           placeholder="Search inventory to add…"
-          className="w-full rounded-md border border-neutral-300 px-3 py-2"
+          className="w-full input"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -166,7 +166,7 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
                     type="number"
                     min={1}
                     max={line.item.availableQuantity}
-                    className="w-20 rounded-md border border-neutral-300 px-2 py-1"
+                    className="w-20 input px-2 py-1"
                     value={line.quantity}
                     onChange={(e) =>
                       setLines((prev) =>
@@ -184,7 +184,7 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
                     type="number"
                     min={0}
                     step="0.01"
-                    className="w-28 rounded-md border border-neutral-300 px-2 py-1"
+                    className="w-28 input px-2 py-1"
                     value={line.unitPrice}
                     onChange={(e) =>
                       setLines((prev) => prev.map((l) => (l.item.id === line.item.id ? { ...l, unitPrice: e.target.value } : l)))
@@ -213,17 +213,17 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
 
       <label className="flex flex-col gap-1 text-sm">
         Delivery charge
-        <input type="number" min={0} step="0.01" className="rounded-md border border-neutral-300 px-3 py-2" value={deliveryCharge} onChange={(e) => setDeliveryCharge(e.target.value)} />
+        <input type="number" min={0} step="0.01" className="input" value={deliveryCharge} onChange={(e) => setDeliveryCharge(e.target.value)} />
       </label>
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="flex flex-col gap-1 text-sm">
           Amount paid now
-          <input type="number" min={0} step="0.01" className="rounded-md border border-neutral-300 px-3 py-2" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} />
+          <input type="number" min={0} step="0.01" className="input" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} />
         </label>
         <label className="flex flex-col gap-1 text-sm">
           Payment method
-          <select className="rounded-md border border-neutral-300 px-3 py-2" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as never)}>
+          <select className="input" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as never)}>
             <option value="CASH">Cash</option>
             <option value="BANK">Bank</option>
             <option value="MOBILE_MONEY">Mobile money</option>
@@ -234,13 +234,15 @@ export function SaleForm({ items, customers }: { items: Item[]; customers: { id:
 
       <label className="flex flex-col gap-1 text-sm">
         Notes
-        <textarea className="rounded-md border border-neutral-300 px-3 py-2" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
+        <textarea className="input" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </label>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <button disabled={loading} className="rounded-md bg-neutral-900 px-4 py-2 text-white disabled:opacity-50">
+      <div className="sticky bottom-0 border-t border-neutral-200 bg-white py-3">
+      <button disabled={loading} className="btn-primary w-full md:w-auto">
         {loading ? "Saving…" : "Save sale"}
       </button>
+      </div>
     </form>
   );
 }

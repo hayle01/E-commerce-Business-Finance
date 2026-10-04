@@ -2,34 +2,41 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 
 export function RecordRecurringButton({ id, active }: { id: string; active: boolean }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recorded, setRecorded] = useState(false);
 
-  async function record() {
-    setLoading(true);
-    setError(null);
-    const res = await fetch(`/api/expenses/recurring/${id}/record`, { method: "POST" });
-    setLoading(false);
-    if (!res.ok) {
-      const body = await res.json().catch(() => null);
-      setError(body?.error?.message ?? "Could not record the expense.");
-      return;
-    }
-    router.refresh();
-  }
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/expenses/recurring/${id}/record`, { method: "POST" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error?.message ?? "Could not record the expense.");
+      }
+    },
+    onSuccess: () => {
+      setRecorded(true);
+      router.refresh();
+    },
+    onError: (err) => setError(err instanceof Error ? err.message : "Could not record the expense."),
+  });
 
   return (
     <span className="flex flex-col items-end">
       <button
-        disabled={loading || !active}
-        onClick={record}
-        className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm disabled:opacity-50"
+        disabled={mutation.isPending || !active}
+        onClick={() => {
+          setError(null);
+          mutation.mutate();
+        }}
+        className="btn-secondary"
       >
-        {loading ? "Recording…" : "Record expense"}
+        {mutation.isPending ? "Recording…" : "Record expense"}
       </button>
+      {recorded && !error && <span className="mt-1 text-xs text-emerald-700">Recorded.</span>}
       {error && <span className="mt-1 text-xs text-red-600">{error}</span>}
     </span>
   );

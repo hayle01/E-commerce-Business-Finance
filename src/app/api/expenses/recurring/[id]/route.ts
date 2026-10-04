@@ -4,7 +4,7 @@ import { updateRecurringSchema } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const { response } = await requireUser();
+  const { user, response } = await requireUser();
   if (response) return response;
   const { id } = await ctx.params;
   const parsed = updateRecurringSchema.safeParse(await request.json());
@@ -14,6 +14,6 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
       { status: 400 }
     );
   }
-  const template = await updateRecurring(id, parsed.data);
+  const template = await updateRecurring(user!.id, id, parsed.data);
   return NextResponse.json({ data: template });
 }

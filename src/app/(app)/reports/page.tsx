@@ -1,6 +1,8 @@
 import { endOfDay, getFinancialSummary, getReportBreakdowns, startOfDay } from "@/lib/services/reporting";
 import { formatMoney } from "@/lib/format";
 import Link from "next/link";
+import { DateRangePicker } from "@/components/date-range-picker";
+import { getSessionUser } from "@/lib/api";
 
 type Preset = "today" | "week" | "month" | "lastMonth" | "custom";
 
@@ -58,9 +60,10 @@ export default async function ReportsPage({
   const { preset, from, to } = await searchParams;
   const range = rangeFromParams(preset, from, to);
 
+  const user = (await getSessionUser())!;
   const [summary, breakdowns] = await Promise.all([
-    getFinancialSummary(range),
-    getReportBreakdowns(range),
+    getFinancialSummary(user.id, range),
+    getReportBreakdowns(user.id, range),
   ]);
 
   const rows: { label: string; value: number; kind: string }[] = [
@@ -95,14 +98,9 @@ export default async function ReportsPage({
 
       <div className="flex flex-wrap items-center gap-2 text-sm">
         {presets.map(([key, label]) => (
-          <Link key={key} href={`/reports?preset=${key}`} className="rounded-md border border-neutral-300 px-3 py-1.5">{label}</Link>
+          <Link key={key} href={`/reports?preset=${key}`} className="btn-secondary">{label}</Link>
         ))}
-        <form action="/reports" className="flex items-center gap-2">
-          <input type="hidden" name="preset" value="custom" />
-          <input type="date" name="from" defaultValue={from} className="rounded-md border border-neutral-300 px-2 py-1.5 text-sm" />
-          <input type="date" name="to" defaultValue={to} className="rounded-md border border-neutral-300 px-2 py-1.5 text-sm" />
-          <button className="rounded-md border border-neutral-300 px-3 py-1.5">Apply</button>
-        </form>
+        <DateRangePicker basePath="/reports" />
       </div>
 
       <table className="mt-6 w-full max-w-2xl border-collapse text-sm">

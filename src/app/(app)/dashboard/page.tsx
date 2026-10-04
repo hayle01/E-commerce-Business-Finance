@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { getSessionUser } from "@/lib/api";
 import { endOfDay, getFinancialSummary, getTrends, startOfDay } from "@/lib/services/reporting";
 import { formatMoney } from "@/lib/format";
 import { prisma } from "@/lib/db";
 import { DashboardCharts } from "@/components/charts/dashboard-charts";
+import { DateRangePicker } from "@/components/date-range-picker";
 
 function rangeFromParams(preset: string | undefined, from?: string, to?: string) {
   const now = new Date();
@@ -10,6 +12,13 @@ function rangeFromParams(preset: string | undefined, from?: string, to?: string)
   if (preset === "week") {
     const start = startOfDay(new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()));
     return { from: start, to: endOfDay(now), label: "Last 7 days" };
+  }
+  if (preset === "year") {
+    return {
+      from: startOfDay(new Date(now.getFullYear(), 0, 1)),
+      to: endOfDay(now),
+      label: "This year",
+    };
   }
   if (preset === "custom" && from && to) {
     return { from: startOfDay(new Date(from)), to: endOfDay(new Date(to)), label: `${from} → ${to}` };
@@ -27,13 +36,15 @@ export default async function DashboardPage({
   searchParams: Promise<{ preset?: string; from?: string; to?: string }>;
 }) {
   const { preset, from, to } = await searchParams;
+  const activePreset = preset ?? "month";
   const range = rangeFromParams(preset, from, to);
 
+  const user = (await getSessionUser())!;
   const [summary, trends, recentSales, recentExpenses] = await Promise.all([
-    getFinancialSummary(range),
-    getTrends(range),
-    prisma.sale.findMany({ include: { customer: true }, orderBy: { createdAt: "desc" }, take: 5 }),
-    prisma.expense.findMany({ include: { category: true }, orderBy: { createdAt: "desc" }, take: 5 }),
+    getFinancialSummary(user.id, range),
+    getTrends(user.id, range),
+    prisma.sale.findMany({ where: { userId: user.id }, include: { customer: true }, orderBy: { createdAt: "desc" }, take: 5 }),
+    prisma.expense.findMany({ where: { userId: user.id }, include: { category: true }, orderBy: { createdAt: "desc" }, take: 5 }),
   ]);
 
   const kpis: [string, number][] = [
@@ -53,10 +64,26 @@ export default async function DashboardPage({
       </div>
 
       <div className="flex flex-wrap gap-2 text-sm">
-        <Link href="/dashboard?preset=today" className="rounded-md border border-neutral-300 px-3 py-1.5">Today</Link>
-        <Link href="/dashboard?preset=week" className="rounded-md border border-neutral-300 px-3 py-1.5">Last 7 days</Link>
-        <Link href="/dashboard?preset=month" className="rounded-md border border-neutral-300 px-3 py-1.5">This month</Link>
-        <Link href="/dashboard?preset=custom&from=2026-01-01&to=2026-12-31" className="rounded-md border border-neutral-300 px-3 py-1.5">Custom</Link>
+        {[
+          ["today", "Today"],
+          ["week", "Last 7 days"],
+          ["month", "This month"],
+          ["year", "This year"],
+        ].map(([key, label]) => (
+          <Link
+            key={key}
+            href={`/dashboard?preset=${key}`}
+            aria-current={activePreset === key ? "page" : undefined}
+            className={
+              activePreset === key
+                ? "rounded-md border border-neutral-900 bg-neutral-900 px-3 py-1.5 text-white"
+                : "btn-secondary"
+            }
+          >
+            {label}
+          </Link>
+        ))}
+        <DateRangePicker basePath="/dashboard" />
       </div>
 
       <div className="mt-6 grid grid-cols-2 divide-x divide-y divide-neutral-200 border border-neutral-200 md:grid-cols-3">

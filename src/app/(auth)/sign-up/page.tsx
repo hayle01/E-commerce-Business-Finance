@@ -2,7 +2,10 @@
 
 import { AuthFormShell } from "@/components/auth/auth-form-shell";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
+import { IconInput } from "@/components/ui/icon-input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { authClient } from "@/lib/auth-client";
+import { Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -47,6 +50,7 @@ export default function SignUpPage() {
   return (
     <AuthFormShell
       title="Create account"
+      description="Set up your account to track sales, inventory, expenses and profits in one place."
       footer={
         <>
           Already have an account?{" "}
@@ -57,41 +61,10 @@ export default function SignUpPage() {
       }
     >
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
-        <input
-          className="rounded-md border border-neutral-300 px-3 py-2"
-          type="text"
-          required
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-
-        <input
-          className="rounded-md border border-neutral-300 px-3 py-2"
-          type="email"
-          required
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <input
-          className="rounded-md border border-neutral-300 px-3 py-2"
-          type="password"
-          required
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <input
-          className="rounded-md border border-neutral-300 px-3 py-2"
-          type="password"
-          required
-          placeholder="Confirm password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
+        <IconInput icon={User} type="text" required placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+        <IconInput icon={Mail} type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <PasswordInput placeholder="Password" required value={password} onChange={setPassword} />
+        <PasswordInput placeholder="Confirm password" required value={confirmPassword} onChange={setConfirmPassword} />
 
         {error && (
           <p className="text-sm text-red-600">
@@ -102,7 +75,7 @@ export default function SignUpPage() {
         <button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-neutral-900 px-3 py-2 text-white disabled:opacity-50"
+          className="btn-primary px-3 disabled:opacity-50"
         >
           {loading ? "Creating…" : "Create account"}
         </button>

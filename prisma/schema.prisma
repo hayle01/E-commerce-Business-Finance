@@ -60,6 +60,8 @@ enum IncomeKind {
 
 model Supplier {
   id        String   @id @default(uuid()) @db.Uuid
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name      String
   shopName  String?
   phone     String?
@@ -71,6 +73,8 @@ model Supplier {
 
   inventoryItems InventoryItem[]
   supplierPayables SupplierPayable[]
+
+  @@index([userId])
 }
 
 model Category {
@@ -94,6 +98,8 @@ model Category {
 
 model InventoryItem {
   id                String   @id @default(uuid()) @db.Uuid
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name              String
   description       String?
   imageUrl          String?
@@ -108,7 +114,7 @@ model InventoryItem {
   sellingPrice      Decimal  @db.Decimal(14, 2)
   initialQuantity   Int
   availableQuantity Int
-  sku               String?  @unique
+  sku               String?
   isActive          Boolean  @default(true)
   notes             String?
   createdAt         DateTime @default(now())
@@ -121,10 +127,14 @@ model InventoryItem {
   @@index([supplierId])
   @@index([isActive])
   @@index([categoryId])
+  @@index([userId])
+  @@unique([userId, sku])
 }
 
 model Customer {
   id        String   @id @default(uuid()) @db.Uuid
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name      String
   phone     String?
   address   String?
@@ -133,11 +143,15 @@ model Customer {
   updatedAt DateTime @updatedAt
 
   sales Sale[]
+
+  @@index([userId])
 }
 
 model Sale {
   id             String        @id @default(uuid()) @db.Uuid
-  orderNumber    String        @unique
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderNumber    String
   customerId     String?       @db.Uuid
   status         SaleStatus    @default(DRAFT)
   paymentStatus  PaymentStatus @default(UNPAID)
@@ -156,9 +170,11 @@ model Sale {
   payments   SalePayment[]
 
   @@index([saleDate])
+  @@unique([userId, orderNumber])
   @@index([status])
   @@index([paymentStatus])
   @@index([customerId])
+  @@index([userId])
 }
 
 model SaleLine {
@@ -202,6 +218,8 @@ model SalePayment {
 
 model SupplierPayable {
   id        String        @id @default(uuid()) @db.Uuid
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   saleLineId String       @unique @db.Uuid
   supplierId String       @db.Uuid
   amountDue Decimal       @db.Decimal(14, 2)
@@ -217,6 +235,7 @@ model SupplierPayable {
 
   @@index([supplierId])
   @@index([status])
+  @@index([userId])
 }
 
 model SupplierPayment {
@@ -237,6 +256,8 @@ model SupplierPayment {
 
 model Expense {
   id                  String        @id @default(uuid()) @db.Uuid
+  userId              String
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   categoryId          String        @db.Uuid
   amount              Decimal       @db.Decimal(14, 2)
   expenseDate         DateTime
@@ -252,10 +273,13 @@ model Expense {
   @@index([expenseDate])
   @@index([categoryId])
   @@index([recurringTemplateId])
+  @@index([userId])
 }
 
 model RecurringExpenseTemplate {
   id         String               @id @default(uuid()) @db.Uuid
+  userId     String
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   name       String
   categoryId String               @db.Uuid
   amount     Decimal              @db.Decimal(14, 2)
@@ -272,10 +296,13 @@ model RecurringExpenseTemplate {
 
   @@index([categoryId])
   @@index([nextDueDate])
+  @@index([userId])
 }
 
 model OtherIncome {
   id            String        @id @default(uuid()) @db.Uuid
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   categoryId    String        @db.Uuid
   incomeKind    IncomeKind    @default(BUSINESS)
   amount        Decimal       @db.Decimal(14, 2)
@@ -289,6 +316,7 @@ model OtherIncome {
 
   @@index([incomeDate])
   @@index([categoryId])
+  @@index([userId])
 }
 
 model User {
@@ -303,6 +331,14 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  suppliers Supplier[]
+  customers Customer[]
+  inventoryItems InventoryItem[]
+  sales Sale[]
+  supplierPayables SupplierPayable[]
+  expenses Expense[]
+  recurringExpenseTemplates RecurringExpenseTemplate[]
+  otherIncomes OtherIncome[]
 
   @@unique([email])
   @@map("user")

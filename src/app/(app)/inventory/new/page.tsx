@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/db";
+import { getSessionUser } from "@/lib/api";
 import { InventoryForm } from "@/components/forms/inventory-form";
 
 export default async function NewInventoryItemPage() {
+  const user = (await getSessionUser())!;
   const [suppliers, categories] = await Promise.all([
-    prisma.supplier.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
+    prisma.supplier.findMany({ where: { isActive: true, userId: user.id }, orderBy: { name: "asc" } }),
     prisma.category.findMany({ where: { type: "PRODUCT", isActive: true }, orderBy: { sortOrder: "asc" } }),
   ]);
 

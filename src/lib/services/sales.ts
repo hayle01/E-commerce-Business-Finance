@@ -11,15 +11,16 @@ function computePaymentStatus(totalCents: number, paidCents: number): "UNPAID" |
   return "PARTIAL";
 }
 
-async function nextOrderNumber(): Promise<string> {
+async function nextOrderNumber(userId: string): Promise<string> {
   const year = new Date().getFullYear();
-  const count = await prisma.sale.count();
+  const count = await prisma.sale.count({ where: { userId } });
   return `ORD-${year}-${String(count + 1).padStart(6, "0")}`;
 }
 
-export async function listSales(filters: { q?: string; status?: string; paymentStatus?: string }) {
+export async function listSales(userId: string, filters: { q?: string; status?: string; paymentStatus?: string }) {
   return prisma.sale.findMany({
     where: {
+      userId,
       ...(filters.status ? { status: filters.status as never } : {}),
       ...(filters.paymentStatus ? { paymentStatus: filters.paymentStatus as never } : {}),
       ...(filters.q
@@ -40,9 +41,9 @@ export async function listSales(filters: { q?: string; status?: string; paymentS
   });
 }
 
-export async function getSale(id: string) {
-  return prisma.sale.findUnique({
-    where: { id },
+export async function getSale(userId: string, id: string) {
+  return prisma.sale.findFirst({
+    where: { id, userId },
     include: {
       customer: true,
       lines: { include: { inventoryItem: true, supplierPayable: { include: { payments: true, supplier: true } } } },
@@ -58,6 +59,7 @@ async function decrementInventoryAndCreatePayables(tx: Tx, saleId: string) {
   });
   for (const line of sale.lines) {
     const item = await tx.inventoryItem.findUniqueOrThrow({ where: { id: line.inventoryItemId } });
+    if (item.userId !== sale.userId) throw new Error("Inventory item does not belong to this account.");
     if (item.availableQuantity < line.quantity) {
       throw new Error(`Not enough stock for "${item.name}". Available: ${item.availableQuantity}.`);
     }
@@ -67,6 +69,7 @@ async function decrementInventoryAndCreatePayables(tx: Tx, saleId: string) {
     });
     await tx.supplierPayable.create({
       data: {
+        userId: sale.userId,
         saleLineId: line.id,
         supplierId: item.supplierId,
         amountDue: line.lineCOGS,
@@ -97,10 +100,10 @@ async function restoreInventoryAndReversePayables(tx: Tx, saleId: string) {
   }
 }
 
-export async function createSale(input: z.infer<typeof createSaleSchema>) {
+export async function createSale(userId: string, input: z.infer<typeof createSaleSchema>) {
   // Validate availability up front for a clear error message.
   for (const line of input.lines) {
-    const item = await prisma.inventoryItem.findUnique({ where: { id: line.inventoryItemId } });
+    const item = await prisma.inventoryItem.findFirst({ where: { id: line.inventoryItemId, userId } });
     if (!item) throw new Error("Inventory item not found.");
     if (line.quantity > item.availableQuantity) {
       throw new Error(`Cannot sell ${line.quantity} × "${item.name}" — only ${item.availableQuantity} available.`);
@@ -109,13 +112,16 @@ export async function createSale(input: z.infer<typeof createSaleSchema>) {
 
   let customerId = input.customerId ?? null;
   if (!customerId && input.customerName) {
-    const customer = await prisma.customer.create({ data: { name: input.customerName } });
+    const customer = await prisma.customer.create({ data: { name: input.customerName, userId } });
     customerId = customer.id;
+  } else if (customerId) {
+    const customer = await prisma.customer.findFirst({ where: { id: customerId, userId } });
+    if (!customer) throw new Error("Customer not found.");
   }
 
   const lines = await Promise.all(
     input.lines.map(async (line) => {
-      const item = await prisma.inventoryItem.findUniqueOrThrow({ where: { id: line.inventoryItemId } });
+      const item = await prisma.inventoryItem.findFirstOrThrow({ where: { id: line.inventoryItemId, userId } });
       const unitPriceCents = toCents(line.unitSellingPrice ?? item.sellingPrice.toString());
       const unitCostCents = toCents(item.costPrice.toString());
       const lineRevenueCents = unitPriceCents * line.quantity;
@@ -134,10 +140,11 @@ export async function createSale(input: z.infer<typeof createSaleSchema>) {
 
   const paidCents = input.payment ? toCents(input.payment.amount) : 0;
 
-  const orderNumber = await nextOrderNumber();
+  const orderNumber = await nextOrderNumber(userId);
   return prisma.$transaction(async (tx) => {
     const sale = await tx.sale.create({
       data: {
+        userId,
         orderNumber,
         customerId,
         status: input.status,
@@ -184,8 +191,35 @@ export async function createSale(input: z.infer<typeof createSaleSchema>) {
   });
 }
 
-export async function markDelivered(id: string) {
-  const sale = await prisma.sale.findUniqueOrThrow({ where: { id } });
+export async function updateSale(
+  userId: string,
+  id: string,
+  input: { saleDate?: Date; deliveryCharge?: number | null; notes?: string }
+) {
+  const sale = await prisma.sale.findFirst({ where: { id, userId } });
+  if (!sale) throw new Error("Sale not found.");
+  if (sale.status === "CANCELLED" || sale.status === "RETURNED") {
+    throw new Error("Cannot edit a closed sale.");
+  }
+  if (sale.status === "DELIVERED" && input.deliveryCharge !== undefined && input.deliveryCharge !== null) {
+    throw new Error("Cannot change delivery charge after delivery.");
+  }
+  const newDelivery = input.deliveryCharge === null ? 0 : input.deliveryCharge ?? (sale.deliveryCharge ? Number(sale.deliveryCharge) : 0);
+  const newTotal = Number(sale.subtotal) + newDelivery;
+  return prisma.sale.update({
+    where: { id },
+    data: {
+      saleDate: input.saleDate,
+      deliveryCharge: input.deliveryCharge === null ? null : input.deliveryCharge,
+      notes: input.notes,
+      total: newTotal.toFixed(2),
+    },
+  });
+}
+
+export async function markDelivered(userId: string, id: string) {
+  const sale = await prisma.sale.findFirst({ where: { id, userId } });
+  if (!sale) throw new Error("Sale not found.");
   if (sale.status === "DELIVERED") throw new Error("Sale is already delivered.");
   if (sale.status === "CANCELLED" || sale.status === "RETURNED") {
     throw new Error("Cannot deliver a cancelled or returned sale.");
@@ -199,11 +233,12 @@ export async function markDelivered(id: string) {
   });
 }
 
-export async function cancelOrReturnSale(id: string, outcome: "CANCELLED" | "RETURNED") {
-  const sale = await prisma.sale.findUniqueOrThrow({
-    where: { id },
+export async function cancelOrReturnSale(userId: string, id: string, outcome: "CANCELLED" | "RETURNED") {
+  const sale = await prisma.sale.findFirst({
+    where: { id, userId },
     include: { payments: true },
   });
+  if (!sale) throw new Error("Sale not found.");
   if (sale.status === "CANCELLED" || sale.status === "RETURNED") {
     throw new Error("Sale is already closed.");
   }
@@ -221,11 +256,12 @@ export async function cancelOrReturnSale(id: string, outcome: "CANCELLED" | "RET
   });
 }
 
-export async function addSalePayment(id: string, input: z.infer<typeof addSalePaymentSchema>) {
-  const sale = await prisma.sale.findUniqueOrThrow({
-    where: { id },
+export async function addSalePayment(userId: string, id: string, input: z.infer<typeof addSalePaymentSchema>) {
+  const sale = await prisma.sale.findFirst({
+    where: { id, userId },
     include: { payments: true },
   });
+  if (!sale) throw new Error("Sale not found.");
   if (sale.status === "CANCELLED" || sale.status === "RETURNED") {
     throw new Error("Cannot add a payment to a closed sale.");
   }
@@ -257,8 +293,9 @@ export async function addSalePayment(id: string, input: z.infer<typeof addSalePa
   });
 }
 
-export async function addSupplierPayment(payableId: string, input: z.infer<typeof addSupplierPaymentSchema>) {
-  const payable = await prisma.supplierPayable.findUniqueOrThrow({ where: { id: payableId } });
+export async function addSupplierPayment(userId: string, payableId: string, input: z.infer<typeof addSupplierPaymentSchema>) {
+  const payable = await prisma.supplierPayable.findFirst({ where: { id: payableId, userId } });
+  if (!payable) throw new Error("Payable not found.");
   const paidCents = toCents(payable.amountPaid.toString()) + toCents(input.amount);
   const dueCents = toCents(payable.amountDue.toString());
   if (paidCents > dueCents) {
@@ -283,5 +320,56 @@ export async function addSupplierPayment(payableId: string, input: z.infer<typeo
       },
     });
     return payment;
+  });
+}
+
+/**
+ * Records one customer-side cash payment to a supplier, allocated across their
+ * outstanding payables (oldest first). Supports paying everything at once,
+ * or a partial amount that only settles the oldest payables.
+ */
+export async function paySupplierOutstanding(
+  userId: string,
+  supplierId: string,
+  input: { amount: number; paymentDate: Date; method: "CASH" | "BANK" | "MOBILE_MONEY" | "OTHER"; reference?: string; notes?: string }
+) {
+  const payables = await prisma.supplierPayable.findMany({
+    where: { supplierId, userId, status: { not: "PAID" } },
+    orderBy: { createdAt: "asc" },
+  });
+  const outstandingCents = payables.reduce(
+    (sum, p) => sum + toCents(p.amountDue.toString()) - toCents(p.amountPaid.toString()),
+    0
+  );
+  const requestedCents = toCents(input.amount);
+  if (requestedCents > outstandingCents) {
+    throw new Error("Payment cannot exceed the total outstanding balance.");
+  }
+
+  return prisma.$transaction(async (tx) => {
+    let remaining = requestedCents;
+    for (const payable of payables) {
+      if (remaining <= 0) break;
+      const payableOutstanding = toCents(payable.amountDue.toString()) - toCents(payable.amountPaid.toString());
+      const pay = Math.min(remaining, payableOutstanding);
+      const newPaidCents = toCents(payable.amountPaid.toString()) + pay;
+      const dueCents = toCents(payable.amountDue.toString());
+      await tx.supplierPayment.create({
+        data: {
+          supplierPayableId: payable.id,
+          amount: fromCents(pay),
+          paymentDate: input.paymentDate,
+          method: input.method,
+          reference: input.reference,
+          notes: input.notes,
+        },
+      });
+      await tx.supplierPayable.update({
+        where: { id: payable.id },
+        data: { amountPaid: fromCents(newPaidCents), status: newPaidCents >= dueCents ? "PAID" : "PARTIAL" },
+      });
+      remaining -= pay;
+    }
+    return { paid: fromCents(requestedCents) };
   });
 }

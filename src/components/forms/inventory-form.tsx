@@ -57,12 +57,12 @@ export function InventoryForm({ suppliers, categories }: { suppliers: Option[]; 
     <form onSubmit={onSubmit} className="flex max-w-2xl flex-col gap-4">
       <label className="flex flex-col gap-1 text-sm">
         Product/item name
-        <input required className="rounded-md border border-neutral-300 px-3 py-2" value={name} onChange={(e) => setName(e.target.value)} />
+        <input required className="input" value={name} onChange={(e) => setName(e.target.value)} />
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
         Supplier
-        <select required className="rounded-md border border-neutral-300 px-3 py-2" value={supplierId} onChange={(e) => setSupplierId(e.target.value)}>
+        <select required className="input" value={supplierId} onChange={(e) => setSupplierId(e.target.value)}>
           <option value="">Select supplier</option>
           {suppliers.map((s) => (
             <option key={s.id} value={s.id}>{s.name}</option>
@@ -72,7 +72,7 @@ export function InventoryForm({ suppliers, categories }: { suppliers: Option[]; 
 
       <label className="flex flex-col gap-1 text-sm">
         Product category
-        <select className="rounded-md border border-neutral-300 px-3 py-2" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+        <select className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
           <option value="">None</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>
@@ -88,33 +88,35 @@ export function InventoryForm({ suppliers, categories }: { suppliers: Option[]; 
       <div className="grid grid-cols-2 gap-4">
         <label className="flex flex-col gap-1 text-sm">
           Cost price
-          <input required type="number" min="0" step="0.01" className="rounded-md border border-neutral-300 px-3 py-2" value={costPrice} onChange={(e) => setCostPrice(e.target.value)} />
+          <input required type="number" min="0" step="0.01" className="input" value={costPrice} onChange={(e) => setCostPrice(e.target.value)} />
         </label>
         <label className="flex flex-col gap-1 text-sm">
           Selling price
-          <input required type="number" min="0" step="0.01" className="rounded-md border border-neutral-300 px-3 py-2" value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} />
+          <input required type="number" min="0" step="0.01" className="input" value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} />
         </label>
       </div>
 
       <label className="flex flex-col gap-1 text-sm">
         Quantity
-        <input required type="number" min="1" step="1" className="rounded-md border border-neutral-300 px-3 py-2" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+        <input required type="number" min="1" step="1" className="input" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
         SKU (optional)
-        <input className="rounded-md border border-neutral-300 px-3 py-2" value={sku} onChange={(e) => setSku(e.target.value)} />
+        <input className="input" value={sku} onChange={(e) => setSku(e.target.value)} />
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
         Description / notes
-        <textarea className="rounded-md border border-neutral-300 px-3 py-2" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
+        <textarea className="input" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
       </label>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <button disabled={loading} className="rounded-md bg-neutral-900 px-4 py-2 text-white disabled:opacity-50">
+      <div className="sticky bottom-0 border-t border-neutral-200 bg-white py-3">
+      <button disabled={loading} className="btn-primary w-full md:w-auto">
         {loading ? "Saving…" : "Save item"}
       </button>
+      </div>
     </form>
   );
 }

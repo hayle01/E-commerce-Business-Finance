@@ -89,14 +89,14 @@ export function ImageUploadField({ folderId, value, onChange }: Props) {
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+          className="btn-secondary"
           onClick={() => cameraInputRef.current?.click()}
         >
           Take photo
         </button>
         <button
           type="button"
-          className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+          className="btn-secondary"
           onClick={() => galleryInputRef.current?.click()}
         >
           Choose from gallery
@@ -104,7 +104,7 @@ export function ImageUploadField({ folderId, value, onChange }: Props) {
         {uploading && (
           <button
             type="button"
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            className="btn-secondary"
             onClick={() => abortRef.current?.abort()}
           >
             Cancel
@@ -113,7 +113,7 @@ export function ImageUploadField({ folderId, value, onChange }: Props) {
         {value && !uploading && (
           <button
             type="button"
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            className="btn-secondary"
             onClick={() => {
               onChange(null);
               setPreviewUrl(null);
